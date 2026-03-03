@@ -13,10 +13,17 @@ export class AppController {
 
   @Get("tonconnect-manifest.json")
   getTonconnectManifest() {
+    // return {
+    //   "url": "https://tem4ik.ru/",    
+    //   "name": "Shark Gifts",
+    //   "iconUrl": "https://tem4ik.ru/assets/logo.png"
+      
+    // }
+
     return {
-      "url": "https://gamepablo.com/",    
-      "name": "Pablo",
-      "iconUrl": "https://gamepablo.com/assets/pablo.jpg"
+      "url": "https://q3mzcghw-8080.euw.devtunnels.ms/",    
+      "name": "Shark Gifts",
+      "iconUrl": "https://i.ibb.co/qYQZKXWZ/IMG-624895.png"
       
     }
   }

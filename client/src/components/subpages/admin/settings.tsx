@@ -70,40 +70,6 @@ export const Settings: React.FC = () => {
     };
    
 
-    // const otherSettingsConfig: FormConfig = {
-    //     input: [
-    //         {
-    //             name: "referralPercent",
-    //             label: "Процент реферальной программы (%)",
-    //             placeholder: "Процент реферальной программы (%)",
-    //             required: true,
-    //             type: "number",
-    //             step: 0.1
-    //         },
-    //         {
-    //             name: "supportUsername",
-    //             label: "Username поддержки",
-    //             placeholder: "Username поддержки",
-    //             required: false,
-    //             type: "text"
-    //         },
-    //         {
-    //             name: "minStarsToBuy",
-    //             label: "Минимальное количество звезд для покупки",
-    //             placeholder: "Минимальное количество звезд для покупки",
-    //             required: true,
-    //             type: "number"
-    //         },
-    //         {
-    //             name: "minStarsToSell",
-    //             label: "Минимальное количество звезд для продажи",
-    //             placeholder: "Минимальное количество звезд для продажи",
-    //             required: true,
-    //             type: "number"
-    //         }
-    //     ]
-    // };
-
     const handleSubmit = async (values: any) => {
         const submitData: any = {};
 
@@ -164,14 +130,11 @@ export const Settings: React.FC = () => {
                     {config?.tonRateInUsd != null && (
                         <p>1 TON = {Number(config.tonRateInUsd).toFixed(4)} USDT</p>
                     )}
-                    {/* {config?.tonRateInUsd != null && config?.giftMarkupInStars != null && (
+                    {config?.tonRateInUsd != null && config?.giftMarkupInStars != null && (
                         <p>
-                            Подарок: {BASE_GIFT_PRICE_STARS} + {Number(config.giftMarkupInStars)} ={" "}
-                            {BASE_GIFT_PRICE_STARS + Number(config.giftMarkupInStars)} ⭐ →{" "}
-                            {((BASE_GIFT_PRICE_STARS + Number(config.giftMarkupInStars)) * STAR_USDT_RATE).toFixed(3)} USDT →{" "}
-                            {(((BASE_GIFT_PRICE_STARS + Number(config.giftMarkupInStars)) * STAR_USDT_RATE) / Number(config.tonRateInUsd)).toFixed(4)} TON
+                          1 звезда = {STAR_USDT_RATE} USDT
                         </p>
-                    )} */}
+                    )}
                 </div>
                 )}
             </Block>
@@ -216,7 +179,7 @@ export const Settings: React.FC = () => {
                         initialValues={{
                             giftMarkupInStars: config.giftMarkupInStars || ""
                         }}
-                        title="Подарки"
+                        title="Наценка в процентах на подарки"
                         icons={[<Star className="w-6 h-6 text-yellow-400" />]}
                         variant="lighter"
                         isCollapsedInitially={false}

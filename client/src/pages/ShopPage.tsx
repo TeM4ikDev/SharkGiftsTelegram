@@ -1,7 +1,6 @@
 import telegramStarsIcon from "@/assets/star.webp";
 import telegramIcon from "@/assets/telegram.svg";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Banner } from "@/components/ui/Banner";
 import { Block } from "@/components/ui/Block";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -131,7 +130,6 @@ const ShopPage: React.FC = () => {
 
     return (
         <PageContainer title="" itemsStart loading={false}>
-            <Banner type="shop" />
 
             <Tabs
                 tabs={[

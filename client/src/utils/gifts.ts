@@ -13,25 +13,25 @@ export interface IGiftItem {
 export const GIFTS_DATA: IGiftItem[] = [
     {
         id: "5956217000635139069",
-        title: "Зимний мишка",
+        title: "New Year bear",
         animation: winterBearLottie,
-        price: 50,
+        price: 1,
     },
     {
         id: "5922558454332916696",
-        title: "Зимняя ёлка",
+        title: "New Year tree",
         animation: winterTreeLottie,
         price: 50,
     },
     {
         id: "5800655655995968830",
-        title: "Медвежонок любви",
+        title: "bear of lovers",
         animation: loveBearLottie,
         price: 50,
     },
     {
         id: "5801108895304779062",
-        title: "Сердечко",
+        title: "heart of lovers",
         animation: loveHeartLottie,
         price: 50,
     },

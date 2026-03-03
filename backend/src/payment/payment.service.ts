@@ -75,7 +75,7 @@ export class PaymentService {
       include: {
         user: true,
         ton: true,
-        cryptoBot: true,
+        // cryptoBot: true,
         stars: true,
       }
     });
@@ -133,21 +133,21 @@ export class PaymentService {
     })
   }
 
-  async createDepositCryptoBot(userId: string, invoiceId: string, amountInStars: Decimal, amountInUsd: Decimal) {
-    console.log(amountInStars, amountInUsd)
-    const deposit = await this.database.deposit.create({
-      data: {
-        userId,
-        type: 'CRYPTOBOT',
-        amountInStars,
-        cryptoBot: { create: { invoiceId, amountInUsd } }
-      },
-    });
+  // async createDepositCryptoBot(userId: string, invoiceId: string, amountInStars: Decimal, amountInUsd: Decimal) {
+  //   console.log(amountInStars, amountInUsd)
+  //   const deposit = await this.database.deposit.create({
+  //     data: {
+  //       userId,
+  //       type: 'CRYPTOBOT',
+  //       amountInStars,
+  //       cryptoBot: { create: { invoiceId, amountInUsd } }
+  //     },
+  //   });
 
-    return deposit;
-  }
+  //   return deposit;
+  // }
 
-  async createDepositTon(userId: string, boc: string, amountInStars: Decimal, amountInTon: Decimal, memo: string) {
+  async createDepositTon(userId: string, boc: string, username: string, giftId: string, amountInStars: Decimal, amountInTon: Decimal, memo: string) {
 
     const existingDeposit = await this.database.depositTon.findUnique({
       where: {
@@ -164,7 +164,7 @@ export class PaymentService {
         userId,
         type: 'TON',
         amountInStars,
-        ton: { create: { amountInTon, boc, memo } },
+        ton: { create: { amountInTon, giftId, recipientUsername: username, boc, memo } },
       },
     });
 
@@ -187,30 +187,30 @@ export class PaymentService {
     return deposit;
   }
 
-  async confirmDepositCryptoBot(invoiceId: string) {
-    const deposit = await this.database.$transaction(async (tx) => {
+  // async confirmDepositCryptoBot(invoiceId: string) {
+  //   const deposit = await this.database.$transaction(async (tx) => {
 
-      const cryptoBotRecord = await tx.depositCryptoBot.update({
-        where: { invoiceId },
-        data: {
-          deposit: {
-            update: { status: 'COMPLETED' }
-          }
-        },
-        include: { deposit: true }
-      });
+  //     const cryptoBotRecord = await tx.depositCryptoBot.update({
+  //       where: { invoiceId },
+  //       data: {
+  //         deposit: {
+  //           update: { status: 'COMPLETED' }
+  //         }
+  //       },
+  //       include: { deposit: true }
+  //     });
 
-      const d = cryptoBotRecord.deposit;
+  //     const d = cryptoBotRecord.deposit;
 
-      await tx.user.update({
-        where: { id: d.userId },
-        data: { balance: { increment: d.amountInStars } },
-      });
+  //     await tx.user.update({
+  //       where: { id: d.userId },
+  //       data: { balance: { increment: d.amountInStars } },
+  //     });
 
-      return d;
-    });
-    return deposit;
-  }
+  //     return d;
+  //   });
+  //   return deposit;
+  // }
 
   async confirmDepositTon(deposit: Prisma.DepositGetPayload<{ include: { ton: true } }>, senderAddress: string) {
 
@@ -282,7 +282,7 @@ export class PaymentService {
     const data = response.data;
     console.log(data);
 
-    await this.createDepositCryptoBot(userId, data.result.invoice_id.toString(), new Decimal(amountInStars), new Decimal(amountInUsd));
+    // await this.createDepositCryptoBot(userId, data.result.invoice_id.toString(), new Decimal(amountInStars), new Decimal(amountInUsd));
 
     return data.result.mini_app_invoice_url;
   }

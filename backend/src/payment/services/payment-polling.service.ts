@@ -17,6 +17,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { Address, beginCell, Cell, contractAddress, loadMessage, StateInit, TonClient, Transaction } from "@ton/ton";
 import axios from 'axios';
 import { IUser } from '@/types/types';
+import { TelegramClient } from '@/telegram/updates/TelegramClient';
 
 
 
@@ -34,6 +35,7 @@ export class PaymentPollingService {
     private readonly configService: ConfigService,
     private readonly telegramService: TelegramService,
     private readonly usersService: UsersService,
+    private readonly telegramClient: TelegramClient
   ) { }
 
 
@@ -174,7 +176,7 @@ export class PaymentPollingService {
       // console.log(pendingPayments)
 
       this.lastTransactions = await this.tonApiService.getTransactions();
-      // console.log(this.lastTransactions.length)
+      console.log(this.lastTransactions.length)
       // return
 
       if (pendingPayments.length > 0) {
@@ -205,8 +207,17 @@ export class PaymentPollingService {
         return;
       }
 
+      // console.log(deposit)
+
+      if (!deposit.ton) {
+        console.log("no ton method")
+        return
+      }
+
+      // console.log(this.lastTransactions[0])
+
       const foundTx = this.lastTransactions.find(p => p.in_msg.message === deposit.ton.memo);
-      
+
       console.log(foundTx)
       if (!foundTx && !foundTx) {
         console.log('not found')
@@ -214,8 +225,12 @@ export class PaymentPollingService {
       }
 
       if (deposit.status === 'PENDING') {
-          await this.paymentService.confirmDepositTon(deposit,  foundTx.in_msg.message.source);
-          await this.telegramService.showDepositSuccess(deposit.user as IUser, deposit.amountInStars);
+        await this.paymentService.confirmDepositTon(deposit, foundTx.in_msg.message.source);
+
+        const { recipientUsername, giftId } = deposit.ton
+        await this.telegramClient.sendGiftToTelegramUser(recipientUsername, giftId)
+
+        // await this.telegramService.showDepositSuccess(deposit.user as IUser, deposit.amountInStars);
       }
 
     } catch (error) {
@@ -223,193 +238,5 @@ export class PaymentPollingService {
     }
   }
 
-  // private async processPayment(deposit: Prisma.DepositGetPayload<{ include: { user: true } }>) {
-
-  //   // console.log(deposit)
-  //   try {
-  //     const paymentAge = Date.now() - deposit.createdAt.getTime();
-  //     if (paymentAge > paymentConfig.paymentLifetime * 1000) {
-  //       await this.database.deposit.update({
-  //         where: { id: deposit.id },
-  //         data: { status: 'EXPIRED' }
-  //       });
-  //       this.logger.log(`Платеж ${deposit.id} истек`);
-  //       return;
-  //     }
-
-
-  //     if (deposit.status === 'COMPLETED') {
-  //       console.log('completed')
-  //       return;
-  //     }
-
-  //     const existingPaymentTon = this.lastTransactions.find(p => p.in_msg.message === deposit.memo);
-  //     const existingPaymentUsdt = this.lastTransactions.find((p) => (p.in_msg.msg_data['@type'] == 'msg.dataRaw' && this.parseUsdtTransaction(p.in_msg.msg_data.body)?.memo === deposit.memo));
-
-  //     if (!existingPaymentTon && !existingPaymentUsdt) {
-  //       console.log('not found')
-  //       return;
-  //     }
-  //     console.log(existingPaymentTon || this.parseUsdtTransaction(existingPaymentUsdt.in_msg.msg_data.body).amount)
-  //     console.log(nanoTontoTon(Number(existingPaymentTon?.in_msg.value || existingPaymentUsdt?.in_msg.value)))
-
-
-
-
-
-
-  //     if (deposit.status === 'PENDING') {
-  //       let updatedDeposit = null
-
-  //       if (existingPaymentUsdt) {
-  //         const { amount, memo } = this.parseUsdtTransaction(existingPaymentUsdt.in_msg.msg_data.body)
-
-  //         if (!await this.checkIsRealUsdt(existingPaymentUsdt.in_msg.source)) {
-  //           await this.database.deposit.update({
-  //             where: { id: deposit.id },
-  //             data: { status: 'FAILED' }
-  //           });
-
-
-
-  //           throw new Error('Неверный адрес USDT master');
-
-
-  //         }
-
-  //         // const amountInRub = (this.telegramService.getGlobalConfig().usdToRubRate).mul(amount);
-  //         updatedDeposit = await this.database.deposit.update({
-  //           where: { id: deposit.id },
-  //           data: {
-  //             status: 'COMPLETED',
-  //             // amountInRub: amountInRub,
-  //           },
-  //           include: {
-  //             user: true
-  //           }
-  //         });
-  //       }
-  //       else {
-  //         const amountInTon = nanoTontoTon(Number(existingPaymentTon?.in_msg.value));
-  //         updatedDeposit = await this.database.deposit.update({
-  //           where: { id: deposit.id },
-  //           data: {
-  //             status: 'COMPLETED',
-  //             amountInTon: amountInTon,
-  //             // amountInRub: amountInTon.mul(this.telegramService.getGlobalConfig().buyTonRateInRub),
-  //             // transactionHash: existingPaymentTon?.transacti on_id.hash || existingPaymentUsdt?.transaction_id.hash,
-  //           },
-  //           include: {
-  //             user: true
-  //           }
-  //         });
-  //       }
-
-
-
-
-
-  //       await this.telegramService.showDepositSuccess(updatedDeposit.user, updatedDeposit.amountInRub);
-  //     }
-
-  //   } catch (error) {
-  //     this.logger.error(`Ошибка обработки платежа ${deposit.id}: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
-
-  //     this.telegramService.sendMessage(deposit.user.telegramId, `Ошибка обработки платежа ${deposit.id}: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
-  //   }
-  // }
-
-
-  // ______cryptobot polling_____
-
-
-
-
-  @Cron(CronExpression.EVERY_10_SECONDS)
-  async handlePolling() {
-    // this.logger.log('Проверка активных инвойсов...');
-    const activePayments = await this.paymentService.getPendingDepositsByType('CRYPTOBOT');
-
-    if (activePayments.length === 0) return;
-
-    const ids = activePayments.map(p => p.cryptoBot.invoiceId);
-
-    try {
-      const { data } = await this.instance.post('/getInvoices', {
-        invoice_ids: ids,
-        status: 'paid'
-      });
-
-      const invoices = data.result.items;
-
-      for (const inv of invoices) {
-        if (inv.status === 'paid') {
-
-          // const { userId, amountStars } = JSON.parse(inv.payload);
-
-          // console.log(userId, amountStars)
-
-          // return
-          const user = await this.usersService.findUserById(inv.payload);
-          const deposit = await this.paymentService.confirmDepositCryptoBot(inv.invoice_id.toString());
-          await this.telegramService.showDepositSuccess(user, deposit.amountInStars);
-
-          this.logger.log(`Баланс пользователя ${user.telegramId} пополнен на ${inv.amount} Stars`);
-        }
-      }
-    } catch (e) {
-      console.log('Ошибка при опросе API Crypto Bot', e);
-    }
-  }
-
-  // ______stars sell polling_____
-  // @Cron(CronExpression.EVERY_30_SECONDS)
-  // async handleStarsSellPolling() {
-  //   const starsSells = await this.paymentService.getStarsSellsWhoCanBePaid();
-  //   // console.log(starsSells)
-  //   if (starsSells.length === 0) return;
-  //   for (const starsSell of starsSells) {
-  //     await this.sendConfirmWithdraw(starsSell);
-  //   }
-  // }
-
-
-  private async sendConfirmWithdraw(starsSell: any) {
-    console.log(starsSell)
-
-    // const globalConfig = this.telegramService.getGlobalConfig();
-    // const amountUsdt = starsSell.priceInRub.div(globalConfig.usdToRubRate);
-    // const amountTon = starsSell.priceInRub.div(globalConfig.buyTonRateInRub);
-
-    // await this.telegramService.sendMessage(starsSell.user.telegramId,
-    //   `✅ Теперь вы можете вывести средства на свой кошелек! Ожидайте пока администратор подтвердит вывод.\n\n` +
-    //   `💰 <b>Сумма:</b> <code>${starsSell.priceInRub.toFixed(2)}</code> RUB\n` +
-    //   `🏦 <b>Адрес получения:</b> <code>${starsSell.cryptoAddress}</code>\n\n` +
-    //   `🆔 <b>ID заявки:</b> <code>${starsSell.id}</code>`, {
-    //   parse_mode: 'HTML',
-    // })
-
-    // const message = `🔔 <b>Новая заявка на вывод средств</b>\n\n` +
-    //   `👤 <b>Пользователь:</b> @${starsSell.user.username || "--"} (<code>${starsSell.user.telegramId}</code>)\n` +
-    //   `💰 <b>Сумма:</b> <code>${starsSell.priceInRub.toFixed(2)}</code> RUB\n\n` +
-    //   `📊 <b>Эквиваленты:</b>\n` +
-    //   `💵 <b>USDT:</b> <code>${amountUsdt.toFixed(4)}</code> USDT\n` +
-    //   `💎 <b>TON:</b> <code>${amountTon.toFixed(4)}</code> TON\n\n` +
-    //   `🏦 <b>Адрес получателя:</b>\n<code>${starsSell.cryptoAddress}</code>\n\n` +
-    //   `🆔 <b>ID заявки:</b> <code>${starsSell.id}</code>`;
-
-    // await this.telegramService.sendMessageToUsers(
-    //   superAdminsTelegramIds,
-    //   message, {
-    //   parse_mode: 'HTML',
-    //   reply_markup: {
-    //     inline_keyboard: [
-    //       [{ text: '📁 Подтвердить вывод', callback_data: `confirm_admin_stars_sell:${starsSell.id}` }]
-    //     ]
-    //   }
-    // })
-
-    // await this.onSceneLeave(ctx);
-  }
 
 }

@@ -1,4 +1,4 @@
-import { ApiRoute, IChatData } from "@/types";
+import { ApiRoute, IChatData, IGlobalConfig } from "@/types";
 import { UserRoles } from "@/types/auth";
 import { apiConfig } from "@/types/pagesConfig";
 
@@ -95,7 +95,7 @@ export class adminService implements ApiRoute {
         return data
     }
 
-    getGlobalConfig = async () => {
+    getGlobalConfig = async (): Promise<IGlobalConfig> => {
         const { data } = await this.instance.get(`${this.baseUrl.settings.main}`)
         return data
     }

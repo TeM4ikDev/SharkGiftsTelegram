@@ -18,7 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <>
     <React.StrictMode>
       <StoreProvider>
-        <TonConnectUIProvider manifestUrl="https://gamepablo.com/api/tonconnect-manifest.json">
+        <TonConnectUIProvider manifestUrl="https://tem4ik.ru/api/tonconnect-manifest.json">
           <App />
         </TonConnectUIProvider>
       </StoreProvider>

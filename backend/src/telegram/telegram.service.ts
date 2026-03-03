@@ -291,13 +291,13 @@ export class TelegramService {
 
 
   async showDepositSuccess(user: IUser, amountInStars: Decimal) {
-    return this.bot.telegram.sendMessage(user.telegramId, `✅ <b>Ваш баланс пополнен на ${amountInStars.toFixed(2)} ⭐</b>`, {
+    return this.bot.telegram.sendMessage(user.telegramId, `✅ <b>Подарок отправлен</b>`, {
       parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: 'Просмотр профиля', web_app: { url: `https://gamepablo.com/profile` } }]
-        ]
-      }
+      // reply_markup: {
+      //   inline_keyboard: [
+      //     [{ text: 'Просмотр профиля', web_app: { url: `https://gamepablo.com/profile` } }]
+      //   ]
+      // }
     })
   }
 

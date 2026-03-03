@@ -43,8 +43,8 @@ export class userService implements ApiRoute {
         return data
     }
 
-    async sendDepositData({ boc, amountInStars, amountInTon, memo }: { boc: string, amountInStars: number, amountInTon: number, memo: string }) {
-        const { data } = await createAxiosInstance('payment/').post('/send-deposit-data', { boc, amountInStars, amountInTon, memo })
+    async sendDepositData({ boc, giftId, username, amountInStars, amountInTon, memo }: { boc: string, username: string, giftId: string, amountInStars: number, amountInTon: number, memo: string }) {
+        const { data } = await createAxiosInstance('payment/').post('/send-deposit-data', { boc, username, giftId, amountInStars, amountInTon, memo })
         return data
     }
 
@@ -73,6 +73,11 @@ export class userService implements ApiRoute {
         return data
     }
 
+
+    async getUserTelegramData(n: string){
+        const { data } = await this.instance.post(this.baseUrl.getTgUser, { n })
+        return data
+    }
 }
 
 

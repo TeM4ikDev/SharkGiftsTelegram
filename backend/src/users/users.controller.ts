@@ -7,6 +7,7 @@ import { DepositType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { UsersService } from './users.service';
 import { BONUS_AMOUNT, bonusDuration, CHANNELS } from '@/types/constants';
+import { TelegramClient } from '@/telegram/updates/TelegramClient';
 // import { PartialType, PickType } from '@nestjs/swagger';
 
 export interface IUpdateUserData {
@@ -21,6 +22,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly databaseService: DatabaseService,
     private readonly telegramService: TelegramService,
+    private readonly telegramClient: TelegramClient
   ) { }
 
   @Get("balance")
@@ -45,11 +47,21 @@ export class UsersController {
   ) {
 
     console.log(query)
-    return await this.usersService.getUserDeposits(userId, {
-      type: query.type,
-      page: query.page,
-      limit: query.limit,
-    });
+    // return await this.usersService.getUserDeposits(userId, {
+    //   type: query.type,
+    //   page: query.page,
+    //   limit: query.limit,
+    // });
+  }
+
+
+
+  @Post("getTgUser")
+  async getU(@Body() body){
+    console.log(body)
+   return await this.telegramClient.getUserData(body.n)
+
+   
   }
 
   

@@ -15,6 +15,8 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import type { IGlobalConfig } from "@/types";
 import { AdminService } from "@/services/admin.service";
+import e from "express";
+import { UserService } from "@/services/user.service";
 
 
 const generateMemo = (length = 10) => {
@@ -26,16 +28,23 @@ const generateMemo = (length = 10) => {
     return result;
 }
 
+interface IGiftTransformed extends IGiftItem {
+    markupInStars: number
+    markupInTon: number
+}
+
 
 const STAR_USDT_RATE = 0.015;
 
 const MainPage: React.FC = observer(() => {
     const { userStore } = useStore();
-    const [selectedGift, setSelectedGift] = useState<IGiftItem | null>(null);
+    const [selectedGift, setSelectedGift] = useState<IGiftTransformed | null>(null);
     const [recipientUsername, setRecipientUsername] = useState("");
     const [tonConnectUI] = useTonConnectUI();
     const [isWalletConnected, setIsWalletConnected] = useState<boolean>(tonConnectUI.connected);
     const [globalConfig, setGlobalConfig] = useState<IGlobalConfig | null>(null);
+
+    const [gifts, setGifts] = useState<IGiftTransformed[]>([])
 
 
     const testIsUsername = (username: string) => {
@@ -55,27 +64,43 @@ const MainPage: React.FC = observer(() => {
     useEffect(() => {
         const load = async () => {
             const data = await onRequest(AdminService.getGlobalConfig());
-            if (data) setGlobalConfig(data);
+            if (data) {
+                setGlobalConfig(data);
+
+                const markup = data.giftMarkupInStars
+
+                if (!markup || !data.tonRateInUsd) {
+                    toast.error("Ошибка получения курса")
+                    return
+                }
+
+                const t: IGiftTransformed[] = GIFTS_DATA.map(g =>
+                ({
+                    ...g,
+                    markupInStars: g.price * (1 + (markup / 100)),
+                    markupInTon: (g.price * (1 + (markup / 100)) * STAR_USDT_RATE) * Number(data.tonRateInUsd)
+                }))
+
+                console.log(t)
+                setGifts(t)
+
+            }
         };
         load();
     }, []);
 
-    const giftMarkupStars = useMemo(() => Number(globalConfig?.giftMarkupInStars ?? 1), [globalConfig?.giftMarkupInStars]);
+    const onBuyGift = async () => {
 
+        if (!selectedGift) {
+            toast.error("Нет выбранного подарка")
+            return
+        }
 
-    // const totalGiftStars = useMemo(() => selectedGift?.price + giftMarkupStars, [selectedGift?.price, giftMarkupStars]);
-    // const totalGiftUsdt = useMemo(() => totalGiftStars * STAR_USDT_RATE, [totalGiftStars]);
-    // const tonRateInUsd = useMemo(() => Number(globalConfig?.tonRateInUsd ?? 0), [globalConfig?.tonRateInUsd]);
+        const { markupInStars, markupInTon, id } = selectedGift
+        const username = recipientUsername.trim().replace("@", "");
 
+        console.log(markupInTon)
 
-    // const totalGiftTon = useMemo(() => {
-    //     if (!tonRateInUsd) return 0;
-    //     return totalGiftUsdt / tonRateInUsd;
-    // }, [totalGiftUsdt, tonRateInUsd]);
-
-    const onBuyGift = async (totalGiftTon: number) => {
-
-        
         if (!tonConnectUI) {
             toast.error('TonConnectUI не подключен');
             return;
@@ -84,18 +109,24 @@ const MainPage: React.FC = observer(() => {
             toast.error('Не задан курс TON в USDT (настройте в админке)');
             return;
         }
-        if (!totalGiftTon || totalGiftTon <= 0) {
+        if (!markupInStars || markupInTon <= 0) {
             toast.error('Не удалось рассчитать цену в TON');
             return;
         }
 
-        const amountInTon = totalGiftTon;
+        const data = await onRequest(UserService.getUserTelegramData(username));
+        console.log(data, 'data')
+
+        if (!data) {
+            toast.error("Такого аккаунта нет. Возможно это канал или группа")
+        }
+
 
         const comment = generateMemo();
         const recipient = recipientUsername.trim().replace("@", "");
         const payload = beginCell()
             .storeUint(0, 32) // opcode для текстового комментария
-            .storeStringTail(`${comment}${recipient ? `|to:${recipient}` : ""}`) // текст комментария
+            .storeStringTail(comment)
             .endCell()
             .toBoc()
             .toString('base64');
@@ -107,7 +138,7 @@ const MainPage: React.FC = observer(() => {
             messages: [
                 {
                     address: "UQC2-_V9_-xc262zUdaxxIyxyWeWgWQbJOM4Ud2MVJQmWVpF", // Куда придут деньги
-                    amount: toNano(amountInTon.toString()).toString(), // Конвертация в нанотоны
+                    amount: toNano(markupInTon.toFixed(9)).toString(), // Конвертация в нанотоны
                     payload: payload // Payload с комментарием в формате base64,
 
                 }
@@ -118,7 +149,14 @@ const MainPage: React.FC = observer(() => {
             const result = await tonConnectUI.sendTransaction(transaction);
             console.log("Транзакция отправлена:", result.boc);
 
-            toast.loading("Платеж отправлен! Ожидайте зачисления.");
+            const data = await onRequest(UserService.sendDepositData({ boc: result.boc, username, giftId: id, amountInStars: markupInStars, amountInTon: markupInTon, memo: comment }));
+            console.log(data, 'data')
+
+            if (data) {
+
+            }
+
+            toast.success("Платеж отправлен! Ожидайте зачисления.");
             setRecipientUsername("");
             setSelectedGift(null);
         } catch (e) {
@@ -131,7 +169,7 @@ const MainPage: React.FC = observer(() => {
         <PageContainer title="Доступные Подарки" itemsStart loading={false}>
             <Block variant="transparent" title="" className="">
                 <div className="grid grid-cols-2 md:grid-cols-3 w-full gap-3 sm:gap-4">
-                    {GIFTS_DATA.map((g) => (
+                    {gifts.map((g) => (
                         <Block
                             key={g.id}
                             className="gap-2 !rounded-3xl !h-full items-center cursor-pointer transition-opacity hover:opacity-90"
@@ -151,7 +189,9 @@ const MainPage: React.FC = observer(() => {
                                 </h3>
 
 
-                                <ShowStars value={g.price * (1 + (giftMarkupStars / 100))} />
+                                <ShowStars value={g.markupInStars} />
+
+                                <ShowStars type="ton" value={g.markupInTon} />
                                 {/* <span className="text-xs text-gray-500">#{g.id.slice(-6)}</span> */}
                             </div>
                         </Block>
@@ -217,10 +257,10 @@ const MainPage: React.FC = observer(() => {
                         {isWalletConnected ? (
                             <>
                                 <Button
-                                    text={`Оплптить ${selectedGift.price * (1 + (giftMarkupStars / 100)) / giftMarkupStars} TON`}
+                                    text={<ShowStars type="ton" text="Оплатить" value={selectedGift.markupInTon} />}
                                     color="gold"
                                     disabled={!testIsUsername(recipientUsername)}
-                                    FC={() => onBuyGift(selectedGift.price * (1 + (giftMarkupStars / 100)) / giftMarkupStars)}
+                                    FC={() => onBuyGift()}
                                 />
                             </>
                         ) : (

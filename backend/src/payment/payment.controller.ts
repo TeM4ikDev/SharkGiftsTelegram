@@ -1,10 +1,11 @@
 import { TelegramService } from '@/telegram/telegram.service';
 import { UsersService } from '@/users/users.service';
-import { Body, Controller, Logger, Post, UseGuards } from '@nestjs/common';  
+import { BadGatewayException, Body, Controller, Logger, Post, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { UserId } from '@/decorators/userid.decorator';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { Decimal } from '@prisma/client/runtime/library';
+import { TelegramClient } from '@/telegram/updates/TelegramClient';
 
 
 interface IPlategaWebhookBody {
@@ -24,14 +25,17 @@ export class PaymentController {
     private readonly paymentService: PaymentService,
     private readonly usersService: UsersService,
     private readonly telegramService: TelegramService,
+    private readonly telegramClient: TelegramClient
 
   ) { }
+
+  private giftPrices = 50
 
   @Post("get-invoice-link")
   async getInvoiceLink(@UserId() userId: string, @Body() body: { amount: number, paymentMethod: "stars" | "cryptobot" }) {
     let invoiceLink;
     const globalConfig = this.telegramService.getGlobalConfig()
-    
+
     if (body.paymentMethod === "stars") {
       invoiceLink = await this.paymentService.createStarsInvoiceLink(userId, body.amount);
     } else if (body.paymentMethod === "cryptobot") {
@@ -45,10 +49,11 @@ export class PaymentController {
   }
 
   @Post("send-deposit-data")
-  async sendDepositData(@UserId() userId: string, @Body() body: { boc: string, amountInStars: number, amountInTon: number, memo: string }) {
+  async sendDepositData(@UserId() userId: string, @Body() body: { boc: string, username: string, giftId: string, amountInStars: number, amountInTon: number, memo: string }) {
     console.log(body)
 
-    return await this.paymentService.createDepositTon(userId, body.boc, new Decimal (body.amountInStars), new Decimal(body.amountInTon), body.memo);
+    
+    return await this.paymentService.createDepositTon(userId, body.boc, body.username, body.giftId, new Decimal(body.amountInStars), new Decimal(body.amountInTon), body.memo);
   }
 
 

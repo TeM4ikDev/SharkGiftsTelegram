@@ -389,7 +389,7 @@ export class BotNewsScene {
 
         try {
             if (newsData.sendMode === 'all') {
-                const { users: allUsers } = await this.usersService.findAllUsers(1, 1000);
+                const { users: allUsers } = await this.usersService.findAllUsers();
                 users = allUsers;
                 sendModeText = 'всем пользователям';
             } else if (newsData.sendMode === 'selected' && newsData.selectedUsers) {

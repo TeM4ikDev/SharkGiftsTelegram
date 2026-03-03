@@ -67,6 +67,8 @@ class ApiConfig {
         bonusInfo: 'bonus-info',
         depositHistory: 'deposits',
         applyPromocode: 'apply-promocode',
+
+        getTgUser: "getTgUser"
     }
 
     gift = {

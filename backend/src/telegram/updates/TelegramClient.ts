@@ -258,7 +258,7 @@ export class TelegramClient {
    * @param {string|BigInt} giftId - ID подарка (например, 5956217000635139069)
    * @param {string} message - Сообщение к подарку (необязательно)
    */
-  async sendNftGift(userId: string, giftId: string, message = "") {
+  async sendGiftToTelegramUser(userId: string, giftId: string, message = "") {
     try {
       const client = await this.getClientOrThrow();
       const peer = await client.getInputEntity(userId);
@@ -266,7 +266,7 @@ export class TelegramClient {
       const invoice = new Api.InputInvoiceStarGift({
         peer,
         giftId: BigInt(giftId),
-        // hideName: false,
+        hideName: true,
         // includeUpgrade: true,
         ...(message
           ? {
@@ -432,56 +432,6 @@ export class TelegramClient {
     }
   }
 
-  async sendGiftToTelegramUser(recipientTelegramId: string, giftId: string) {
-    try {
-      const myPeer = await this.client.getInputEntity("me");
-      const toPeer = await this.client.getInputEntity(recipientTelegramId);
-
-      if (!toPeer) throw new Error("Recipient not found");
-
-      const gift = await this.getGiftBySlug(giftId);
-      console.log(gift)
-
-      if (!gift) throw new Error("Gift not found");
-
-
-
-      console.log(BigInt(gift.gift.id.toString()))
-
-      // stargiftId — это уникальный ID конкретного экземпляра в твоем инвентаре
-      // const result = await this.client.invoke(
-      //   new Api.payments.TransferStarGift({
-      //     stargift: new Api.InputSavedStarGiftUser({
-      //       peer: myPeer,
-      //       savedId: BigInt(gift.gift.id.toString()), // Передаем BigInt значение из твоего вывода
-      //     } as any),
-      //     toId: toPeer,
-      //   })
-      // );
-
-      const giftOpts = await this.client.invoke(
-        new Api.payments.GetPaymentForm({
-          invoice: new Api.InputInvoiceStarGiftTransfer({
-            stargift: (new Api.InputSavedStarGiftUser({ msgId: 2187 })),
-            toId: toPeer
-          }),
-          themeParams: new Api.DataJSON({
-            data: "some string here",
-          }),
-        })
-      );
-
-      console.log(giftOpts)
-
-
-      // const d: TypeInputSavedStarGift ={}
-
-      // return result;
-    } catch (error) {
-      this.logger.error(`Ошибка трансфера NFT: ${error}`);
-      throw error;
-    }
-  }
 
   getGifTransformedData(gift: typeof giftEvent.message.action.gift) {
 

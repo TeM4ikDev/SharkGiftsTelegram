@@ -276,53 +276,53 @@ export class UsersService {
     });
   }
 
-  async getUserDeposits(
-    userId: string,
-    opts?: { type?: DepositType; page?: number; limit?: number },
-  ) {
-    const page = Math.max(1, Number(opts?.page) || 1);
-    const limit = Math.min(100, Math.max(1, Number(opts?.limit) || 20));
-    const skip = (page - 1) * limit;
+  // async getUserDeposits(
+  //   userId: string,
+  //   opts?: { type?: DepositType; page?: number; limit?: number },
+  // ) {
+  //   const page = Math.max(1, Number(opts?.page) || 1);
+  //   const limit = Math.min(100, Math.max(1, Number(opts?.limit) || 20));
+  //   const skip = (page - 1) * limit;
 
   
-    const where: Prisma.DepositWhereInput = { userId };
-    if (opts?.type && typeof opts.type === 'string') {
-      where.type = opts.type as DepositType;
-    }
+  //   const where: Prisma.DepositWhereInput = { userId };
+  //   if (opts?.type && typeof opts.type === 'string') {
+  //     where.type = opts.type as DepositType;
+  //   }
 
-    const [data, total] = await Promise.all([
-      this.database.deposit.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-        include: {
-          stars: true,
-          ton: true,
-          cryptoBot: true,
-        },
-      }),
-      this.database.deposit.count({ where }),
-    ]);
+  //   const [data, total] = await Promise.all([
+  //     this.database.deposit.findMany({
+  //       where,
+  //       orderBy: { createdAt: 'desc' },
+  //       skip,
+  //       take: limit,
+  //       include: {
+  //         stars: true,
+  //         ton: true,
+  //         cryptoBot: true,
+  //       },
+  //     }),
+  //     this.database.deposit.count({ where }),
+  //   ]);
 
-    return {
-      data: data.map((d) => ({
-        id: d.id,
-        userId: d.userId,
-        amountInStars: d.amountInStars != null ? Number(d.amountInStars) : null,
-        status: d.status,
-        type: d.type,
-        createdAt: d.createdAt,
-        updatedAt: d.updatedAt,
-        stars: d.stars,
-        ton: d.ton,
-        cryptoBot: d.cryptoBot,
-      })),
-      total,
-      page,
-      limit,
-    };
-  }
+  //   return {
+  //     data: data.map((d) => ({
+  //       id: d.id,
+  //       userId: d.userId,
+  //       amountInStars: d.amountInStars != null ? Number(d.amountInStars) : null,
+  //       status: d.status,
+  //       type: d.type,
+  //       createdAt: d.createdAt,
+  //       updatedAt: d.updatedAt,
+  //       stars: d.stars,
+  //       ton: d.ton,
+  //       cryptoBot: d.cryptoBot,
+  //     })),
+  //     total,
+  //     page,
+  //     limit,
+  //   };
+  // }
 }
 
 

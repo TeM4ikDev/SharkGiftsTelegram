@@ -137,7 +137,7 @@ export class AdminController {
         include: {
           user: true,
           ton: true,
-          cryptoBot: true,
+          // cryptoBot: true,
           stars: true,
         },
       }),
