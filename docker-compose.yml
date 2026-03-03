@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      # SQLite БД (данные сохраняются между перезапусками)
+      - app-data:/app/data
+    restart: unless-stopped
+    # Секреты: ENCRYPTION_KEY, JWT_SECRET, BOT_TOKEN и др. (скопируйте backend/.env.example в backend/.env)
+    env_file:
+      - backend/.env
+
+volumes:
+  app-data:

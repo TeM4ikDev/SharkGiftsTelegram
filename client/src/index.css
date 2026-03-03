@@ -1,0 +1,217 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+@font-face {
+  font-family: 'font-04b';
+  src: url('/src/assets/fonts/04brusbylyajka_30.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+body,
+html {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  max-height: 100vh;
+  height: 100vh;
+  overflow-x: hidden;
+   overflow-y: hidden;
+  
+  /* Скрываем скроллбар визуально */
+  /* -ms-overflow-style: none; Для IE и Edge */
+  /* scrollbar-width: none Для Firefox */
+
+
+  display: flex;
+  flex-direction: column;
+
+  /* padding-top: 50px; */
+
+  
+  /* padding-top: 50px; */
+  /* padding-bottom: 50px; */
+
+  background-color: #1F1F1F;
+/* 
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); */
+ 
+}
+/* 
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+  display: none; /* Для Chrome, Safari, Opera */
+
+
+
+
+body {
+  min-height: 100%;
+  /* padding-top: var(--tg-safe-area-inset-top);
+  padding-bottom: var(--tg-safe-area-inset-bottom);
+   */
+
+ 
+}
+
+#root {
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex: 1;
+  flex-direction: column; 
+  /* margin-top: var(--tg-safe-area-inset-top); */
+
+  
+}
+
+/* a{
+  text-decoration: underline;
+  color: rgb(158, 123, 190);
+} */
+
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* --tg-safe-area-inset-top: 35px;
+    --tg-safe-area-inset-bottom: 45px; */
+
+    --background: 0 0% 7%;
+    --foreground: 0 0% 98%;
+    --primary: 0 72% 45%;
+    /* Красный */
+    --primary-light: 0 72% 55%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 120 65% 35%;
+    /* Зелёный */
+    --secondary-light: 120 65% 45%;
+    --secondary-foreground: 0 0% 98%;
+    --card: 240 10% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 10%;
+    --popover-foreground: 0 0% 98%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 0 72% 40%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 80% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 0 72% 45%;
+    --chart-1: 0 72% 45%;
+    --chart-2: 120 65% 35%;
+    --chart-3: 45 85% 50%;
+    /* Жёлтый для выделения */
+    --chart-4: 220 70% 50%;
+    --chart-5: 280 65% 60%;
+    --radius: 0.5rem;
+
+  }
+
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+
+}
+
+
+.lucide {
+  transition: 0.2s;
+  stroke-width: 3 !important;
+}
+
+.lucide:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* Для Webkit-браузеров (Chrome, Safari) */
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* Для старых версий IE */
+  scrollbar-width: none;
+  /* Для Firefox */
+}
+
+
+/* _____ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2a2a2a;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #616161;
+}
+
+/* 
+a.active :not(button) {
+  scale: 105%;
+  z-index: 30;
+  text-decoration: underline;
+} */
+
+
+.react-datepicker {
+  z-index: 1999;
+}
+
+.react-datepicker__tab-loop {
+  z-index: 10000;
+}
+
+.Toastify__toast-icon {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% auto;
+  animation: gradient 8s linear infinite;
+}
