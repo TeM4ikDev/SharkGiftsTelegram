@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+  // adapter  = "sqlite"
+}
+
+enum UserRoles {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserLanguage {
+  RU
+  EN
+}
+
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum DepositStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+enum PurchaseType {
+  STARS
+  PREMIUM
+}
+
+enum TelegramPremiumMonth {
+  MONTHS_3  @map("3")
+  MONTHS_6  @map("6")
+  MONTHS_12 @map("12")
+}
+
+enum ShopProductType {
+  PREMIUM
+  STARS
+  GIFT
+}
+
+enum CurrencyType {
+  TON
+  STARS
+  USDT
+}
+
+enum DepositType {
+  STARS
+  CRYPTOBOT
+  TON
+}
+
+enum CasesGameItemResult {
+  STARS
+  USDT
+  GIFT
+  EMPTY
+}
+
+model User {
+  id         String @id @default(uuid())
+  telegramId String @unique
+
+  username  String?
+  lastName  String?
+  firstName String?
+  role      UserRoles @default(USER)
+  photo_url String?
+
+  banned Boolean @default(false)
+
+  balance Decimal @default(0)
+
+  UsersConfig UsersConfig?
+  deposits    Deposit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UsersConfig {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  tonWallet String?
+  card      String?
+  language  UserLanguage @default(RU)
+
+  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GlobalConfig {
+  id Int @id @default(1)
+
+  tonRateInUsd  Decimal // Цена покупки 1 TON в usd
+  starRateInUsd Decimal @default(0.015) // Цена покупки 1 звезды в usd 
+  starRateInTon Decimal @default(0.01) // Цена покупки 1 звезды в ton
+
+  /// Наценка на покупку подарков (в звёздах)
+  giftMarkupInStars Int @default(0)
+
+  channelsToSubscribe Json    @default("[]") // ["@channel1", "@channel2"]
+  supportUsername     String? // @username поддержки
+
+  authPortalData String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([id])
+}
+
+// __________________________
+
+model Deposit {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  amountInStars Decimal?
+  status        DepositStatus @default(PENDING)
+
+  type DepositType @default(TON)
+
+  stars DepositTelegramStars?
+  ton   DepositTon?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DepositTelegramStars {
+  id String @id @default(uuid())
+
+  telegramOperationId String @unique
+
+  depositId String  @unique
+  deposit   Deposit @relation(fields: [depositId], references: [id])
+}
+
+model DepositTon {
+  id  Int    @id @default(autoincrement())
+  boc String @unique
+
+  fromAddress String?
+
+  amountInTon Decimal
+
+  recipientUsername String
+  giftId            String
+
+  giftAmount Int @default(1)
+
+  memo String
+
+  depositId String  @unique
+  deposit   Deposit @relation(fields: [depositId], references: [id])
+}
+
+// model DepositCryptoBot {
+//   id String @id @default(uuid())
+
+//   invoiceId   String  @unique
+//   amountInUsd Decimal
+
+//   depositId String  @unique
+//   deposit   Deposit @relation(fields: [depositId], references: [id])
+// }
+
+// ______________gifts_____________
+
+model Gift {
+  id     String @id @default(uuid())
+  giftId String @unique
+
+  priceInStars Decimal
+
+  title String
+  slug  String
+  num   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ShopProduct {
+  id            String                @id @default(uuid())
+  type          ShopProductType
+  name          String
+  priceInStars  Decimal
+  imageUrl      String?
+  premiumMonths TelegramPremiumMonth?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 
+
+model BotNewsHistory {
+  id String @id @default(uuid())
+
+  messageId String
+  chatId    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
