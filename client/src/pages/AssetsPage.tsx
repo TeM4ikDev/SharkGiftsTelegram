@@ -1,5 +1,5 @@
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Banner } from "@/components/ui/Banner";
+
 import { Block } from "@/components/ui/Block";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -304,7 +304,7 @@ const AssetsPage: React.FC = () => {
 
     return (
         <PageContainer title="" itemsStart loading={false}>
-            <Banner type="assets" />
+            {/* <Banner type="assets" /> */}
 
             <Tabs
                 tabs={[

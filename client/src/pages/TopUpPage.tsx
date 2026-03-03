@@ -93,12 +93,12 @@ export const DepositTon = async ({
         const result = await tonConnectUI.sendTransaction(transaction);
         console.log("Транзакция отправлена:", result.boc);
 
-        const data = await onRequest(UserService.sendDepositData({ boc: result.boc, amountInStars, amountInTon, memo: comment }));
-        console.log(data, 'data')
+        // const data = await onRequest(UserService.sendDepositData({ boc: result.boc, amountInStars, amountInTon, memo: comment }));
+        // console.log(data, 'data')
 
-        if (data) {
+        // if (data) {
 
-        }
+        // }
 
         // await fetch('/api/payment/verify', {
         //     method: 'POST',

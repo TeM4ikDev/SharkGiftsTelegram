@@ -36,6 +36,14 @@ const clientConfig = {
   session: "1BAAOMTQ5LjE1NC4xNjcuOTEAUI03Va5p8NHIgahmSZSspP46caFV7YbWEUaJ4g++f00jVbDYDFsWavaGyB8pKQoPmahM/5h0pgb1UzOC2mwB5MZMP63KLpeZPodZYEzgeb3Qt3gmelSbhn9Z9pVEVSUUbAunWtLIClU16UCdiX+SBUcSftvwF3+J+MRBJOCszL1q82flETM4g65GUoK6EQpm9myw2VVP5Dl2NC1IAb13Vu+qdZ/H0TsHji4xGUcw4JzPprcAKE6jUajQ6ENuG0dn2QePlq9+UzwrKiD91whlyCskR6KZYCEgCsJwfqYo8H9Jh3+8GlIvT3q30HBXQNZVBCkQ91kf5ne1jjxIPvWt6gI=",
 }
 
+// const clientConfig = {
+//   apiId: 32001938,
+//   apiHash: "2b1640223ec7b83a090bebf824c52981",
+//   phone: "+34616751592",
+//   password: "",
+//   session: null,
+// }
+
 
 @Injectable()
 export class TelegramClient {
@@ -79,13 +87,13 @@ export class TelegramClient {
   async createClient(clientData: ITelegramClientDataConnect) {
     this.logger.debug(`Creating client for ${clientData.phone}`);
     try {
-      const session = new StringSession(clientData.session);
+      const session = new StringSession(clientData.session || "");
       // console.log(session)
       const client = new TelegramClientClass(
         session,
         clientData.apiId,
         clientData.apiHash,
-        { connectionRetries: 5 }
+        { connectionRetries: 1 }
       );
 
       await client.start({
