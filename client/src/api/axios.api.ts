@@ -2,7 +2,7 @@ import axios from "axios";
 import { getTokenFromLocalStorage } from "@/utils/localstorage";
 import { io } from "socket.io-client";
 
-const prefix = import.meta.env.DEV ? 'http://localhost:8080' : ''
+const prefix = import.meta.env.DEV ? 'http://localhost:1818' : ''
 
 console.log(import.meta.env)
 

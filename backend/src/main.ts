@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bodyParser: true,
   });
-  const PORT = 8080;
+  const PORT = 1818;
 
 
 
