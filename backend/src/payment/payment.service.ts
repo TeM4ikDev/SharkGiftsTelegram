@@ -120,15 +120,22 @@ export class PaymentService {
 
 
   // ______create deposits__________
-  async createDepositStars(userId: string, telegramOperationId: string, amountInStars: Decimal, tx?: Prisma.TransactionClient) {
+  async createDepositStars(userId: string, amountInStars: Decimal, recipientUsername: string, giftId: string, giftAmount: number, tx?: Prisma.TransactionClient) {
     const db = tx || this.database;
     return await db.deposit.create({
       data: {
         userId,
         type: 'STARS',
-        status: 'COMPLETED',
+        status: "PENDING",
         amountInStars,
-        stars: { create: { telegramOperationId } }
+        stars: {
+          create: {
+            giftAmount,
+            recipientUsername,
+            giftId
+
+          }
+        }
       }
     })
   }
@@ -147,7 +154,16 @@ export class PaymentService {
   //   return deposit;
   // }
 
-  async createDepositTon(userId: string, boc: string, username: string, giftId: string, amountInStars: Decimal, amountInTon: Decimal, memo: string) {
+  async createDepositTon(
+    userId: string,
+    boc: string,
+    username: string,
+    giftId: string,
+    giftAmount: number,
+    amountInStars: Decimal,
+    amountInTon: Decimal,
+    memo: string,
+  ) {
 
     const existingDeposit = await this.database.depositTon.findUnique({
       where: {
@@ -164,7 +180,7 @@ export class PaymentService {
         userId,
         type: 'TON',
         amountInStars,
-        ton: { create: { amountInTon, giftId, recipientUsername: username, boc, memo } },
+        ton: { create: { amountInTon, giftId, giftAmount, recipientUsername: username, boc, memo } },
       },
     });
 
@@ -173,19 +189,19 @@ export class PaymentService {
 
   // ______________update deposits__________
 
-  async createAndConfirmDepositStars(userId: string, telegramOperationId: string, amountInStars: Decimal) {
-    const deposit = await this.database.$transaction(async (tx) => {
-      const d = await this.createDepositStars(userId, telegramOperationId, amountInStars, tx);
-
-      await tx.user.update({
-        where: { id: d.userId },
-        data: { balance: { increment: d.amountInStars } },
-      });
-
-      return d;
-    });
-    return deposit;
-  }
+  // async createAndConfirmDepositStars(userId: string, telegramOperationId: string, amountInStars: Decimal) {
+  //   const deposit = await this.database.$transaction(async (tx) => {
+  //     const d = await this.createDepositStars(userId, amountInStars, '', '', 1, tx);
+  //
+  //     await tx.user.update({
+  //       where: { id: d.userId },
+  //       data: { balance: { increment: d.amountInStars } },
+  //     });
+  //
+  //     return d;
+  //   });
+  //   return deposit;
+  // }
 
   // async confirmDepositCryptoBot(invoiceId: string) {
   //   const deposit = await this.database.$transaction(async (tx) => {
@@ -242,13 +258,40 @@ export class PaymentService {
     return depositTon;
   }
 
+  async getDepositWithStarsById(id: string) {
+    return this.database.deposit.findUnique({
+      where: { id },
+      include: { stars: true },
+    });
+  }
+
+  async markDepositCompleted(id: string) {
+    return this.database.deposit.update({
+      where: { id },
+      data: { status: 'COMPLETED' },
+    });
+  }
+
   //  ______create invoice links________
 
-  async createStarsInvoiceLink(telegramId: string, starsAmount: number) {
+  async createStarsInvoiceLink(
+    userId: string,
+    starsAmount: number,
+    recipientUsername: string,
+    giftId: string,
+    giftAmount: number,
+  ) {
+    const deposit = await this.createDepositStars(
+      userId,
+      new Decimal(starsAmount),
+      recipientUsername,
+      giftId,
+      giftAmount,
+    );
     const invoiceLink = await this.bot.telegram.createInvoiceLink({
       title: '⭐️ Подтверждение продажи',
       description: `Пополнение баланса на ${starsAmount} ⭐`,
-      payload: telegramId,
+      payload: deposit.id,
       provider_token: '',
       currency: 'XTR',
       prices: [
@@ -260,6 +303,8 @@ export class PaymentService {
   }
 
   async createCryptoBotInvoiceLink(userId: string, amountInUsd: number, amountInStars: number) {
+
+
     const response = await axios.post('https://pay.crypt.bot/api/createInvoice',
       {
         currency_type: 'fiat',
@@ -282,7 +327,6 @@ export class PaymentService {
     const data = response.data;
     console.log(data);
 
-    // await this.createDepositCryptoBot(userId, data.result.invoice_id.toString(), new Decimal(amountInStars), new Decimal(amountInUsd));
 
     return data.result.mini_app_invoice_url;
   }

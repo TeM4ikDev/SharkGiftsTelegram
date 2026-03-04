@@ -163,8 +163,8 @@ export class MainMenuUpdate {
             }
         }
         const hasUserRights = user.role === UserRoles.SUPER_ADMIN || user.role === UserRoles.ADMIN;
-        const welcomeMessage = `🦈 Добро пожаловать в Shark Market!`+
-`Здесь ты можешь купить гифты, которые уже сняты с продажи — редкие и недоступные в официальных источниках.\n`+
+        const welcomeMessage = `🦈 Добро пожаловать в Shark Market!\n\n`+
+`Здесь ты можешь купить гифты, которые уже сняты с продажи — редкие и недоступные в официальных источниках.\n\n`+
 `Выбирай, смотри ассортимент и забирай эксклюзив`
 
 

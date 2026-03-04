@@ -144,10 +144,14 @@ model Deposit {
 model DepositTelegramStars {
   id String @id @default(uuid())
 
-  telegramOperationId String @unique
+  // telegramOperationId String @unique
+
+  recipientUsername String
+  giftId            String
+  giftAmount Int @default(1)
 
   depositId String  @unique
-  deposit   Deposit @relation(fields: [depositId], references: [id])
+  deposit   Deposit @relation(fields: [depositId], references: [id], onDelete: Cascade)
 }
 
 model DepositTon {
@@ -166,7 +170,7 @@ model DepositTon {
   memo String
 
   depositId String  @unique
-  deposit   Deposit @relation(fields: [depositId], references: [id])
+  deposit   Deposit @relation(fields: [depositId], references: [id], onDelete: Cascade)
 }
 
 // model DepositCryptoBot {

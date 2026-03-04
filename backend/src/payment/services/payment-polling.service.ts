@@ -176,7 +176,7 @@ export class PaymentPollingService {
       // console.log(pendingPayments)
 
       this.lastTransactions = await this.tonApiService.getTransactions();
-      console.log(this.lastTransactions.length)
+      // console.log(this.lastTransactions.length)
       // return
 
       if (pendingPayments.length > 0) {
@@ -218,7 +218,7 @@ export class PaymentPollingService {
 
       const foundTx = this.lastTransactions.find(p => p.in_msg.message === deposit.ton.memo);
 
-      console.log(foundTx)
+      // console.log(foundTx)
       if (!foundTx && !foundTx) {
         console.log('not found')
         return;
@@ -227,10 +227,14 @@ export class PaymentPollingService {
       if (deposit.status === 'PENDING') {
         await this.paymentService.confirmDepositTon(deposit, foundTx.in_msg.message.source);
 
-        const { recipientUsername, giftId } = deposit.ton
-        await this.telegramClient.sendGiftToTelegramUser(recipientUsername, giftId)
+        const { recipientUsername, giftId, giftAmount } = deposit.ton
 
-        // await this.telegramService.showDepositSuccess(deposit.user as IUser, deposit.amountInStars);
+        console.log(deposit.ton)
+
+        // return
+        for (let i = 0; i < (giftAmount || 1); i++) {
+          await this.telegramClient.sendGiftToTelegramUser(recipientUsername, giftId)
+        }
       }
 
     } catch (error) {

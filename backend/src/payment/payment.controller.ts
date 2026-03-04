@@ -32,16 +32,28 @@ export class PaymentController {
   private giftPrices = 50
 
   @Post("get-invoice-link")
-  async getInvoiceLink(@UserId() userId: string, @Body() body: { amount: number, paymentMethod: "stars" | "cryptobot" }) {
+  async getInvoiceLink(
+    @UserId() userId: string,
+    @Body() body: { username: string; giftsValue: number; amount: number; giftId: string; paymentMethod: "stars" | "cryptobot" },
+  ) {
     let invoiceLink;
     const globalConfig = this.telegramService.getGlobalConfig()
 
+    console.log(body)
+
     if (body.paymentMethod === "stars") {
-      invoiceLink = await this.paymentService.createStarsInvoiceLink(userId, body.amount);
-    } else if (body.paymentMethod === "cryptobot") {
-      const amountInUsdWithCommission = (body.amount * Number(globalConfig.starRateInUsd)) / 0.97;
-      invoiceLink = await this.paymentService.createCryptoBotInvoiceLink(userId, amountInUsdWithCommission, body.amount);
-    }
+      invoiceLink = await this.paymentService.createStarsInvoiceLink(
+        userId,
+        body.amount,
+        body.username,
+        body.giftId,
+        body.giftsValue,
+      );
+    } 
+    // else if (body.paymentMethod === "cryptobot") {
+    //   const amountInUsdWithCommission = (body.amount * Number(globalConfig.starRateInUsd)) / 0.97;
+    //   invoiceLink = await this.paymentService.createCryptoBotInvoiceLink(userId, amountInUsdWithCommission, body.amount);
+    // }
 
     return {
       invoiceLink: invoiceLink
@@ -49,11 +61,31 @@ export class PaymentController {
   }
 
   @Post("send-deposit-data")
-  async sendDepositData(@UserId() userId: string, @Body() body: { boc: string, username: string, giftId: string, amountInStars: number, amountInTon: number, memo: string }) {
+  async sendDepositData(
+    @UserId() userId: string,
+    @Body()
+    body: {
+      boc: string;
+      username: string;
+      giftId: string;
+      giftAmount: number;
+      amountInStars: number;
+      amountInTon: number;
+      memo: string;
+    },
+  ) {
     console.log(body)
 
-    
-    return await this.paymentService.createDepositTon(userId, body.boc, body.username, body.giftId, new Decimal(body.amountInStars), new Decimal(body.amountInTon), body.memo);
+    return await this.paymentService.createDepositTon(
+      userId,
+      body.boc,
+      body.username,
+      body.giftId,
+      body.giftAmount,
+      new Decimal(body.amountInStars),
+      new Decimal(body.amountInTon),
+      body.memo,
+    );
   }
 
 

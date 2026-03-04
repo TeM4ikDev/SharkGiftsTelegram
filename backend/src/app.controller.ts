@@ -21,7 +21,7 @@ export class AppController {
     // }
 
     return {
-      "url": "https://q3mzcghw-8080.euw.devtunnels.ms/",    
+      "url": "https://tem4ik.ru",    
       "name": "Shark Gifts",
       "iconUrl": "https://i.ibb.co/qYQZKXWZ/IMG-624895.png"
       

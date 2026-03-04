@@ -10,6 +10,7 @@ import { SceneContext } from 'telegraf/typings/scenes';
 import { TelegramService } from './telegram.service';
 import { Decimal } from '@prisma/client/runtime/library';
 import { IUser } from '@/types/types';
+import { TelegramClient } from './updates/TelegramClient';
 
 // @UseGuards(UserCheckMiddleware)
 @Update()
@@ -21,6 +22,7 @@ export class TelegramUpdate {
     protected readonly configService: ConfigService,
     protected readonly usersService: UsersService,
     protected readonly paymentService: PaymentService,
+    protected readonly telegramClient: TelegramClient,
   ) { }
 
   @On('pre_checkout_query')
@@ -36,8 +38,33 @@ export class TelegramUpdate {
     const stars = payment.total_amount
     const user = await this.usersService.findUserByTelegramId(ctx.from.id.toString());
 
-    await this.paymentService.createAndConfirmDepositStars(user.id, paymentId, new Decimal(stars));
-    // this.telegramService.showDepositSuccess(user as IUser, new Decimal(stars));
+
+    const depositId = payment.invoice_payload;
+    console.log('Stars successful_payment, depositId:', depositId);
+
+    const deposit = await this.paymentService.getDepositWithStarsById(depositId);
+    if (!deposit) {
+      this.logger.error(`Deposit not found for id=${depositId}`);
+      return;
+    }
+
+    if (deposit.status !== 'PENDING') {
+      this.logger.log(`Deposit ${deposit.id} already processed with status=${deposit.status}`);
+      return;
+    }
+
+    if (!deposit.stars) {
+      this.logger.error(`Deposit ${deposit.id} has no stars relation`);
+      return;
+    }
+
+    const { recipientUsername, giftId, giftAmount } = deposit.stars;
+
+    for (let i = 0; i < (giftAmount || 1); i++) {
+      await this.telegramClient.sendGiftToTelegramUser(recipientUsername, giftId);
+    }
+
+    await this.paymentService.markDepositCompleted(deposit.id);
   }
 
   @On('refunded_payment' as any)
