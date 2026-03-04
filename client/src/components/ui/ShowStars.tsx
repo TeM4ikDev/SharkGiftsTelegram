@@ -63,7 +63,7 @@ export const ShowStars: React.FC<ShowStarsProps> = ({
             <img 
                 src={iconSrc} 
                 alt={type} 
-                className={`${sizeIconClass[size]} ${imageColorClass} flex-shrink-0 object-contain`} 
+                className={`${sizeIconClass[size]} flex-shrink-0 object-contain`} 
             />
             
             <span className={`font-extrabold ${getTextColor()} ${sizeClass[size]}`}>

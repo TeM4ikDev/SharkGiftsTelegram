@@ -163,7 +163,7 @@ export class MainMenuUpdate {
             }
         }
         const hasUserRights = user.role === UserRoles.SUPER_ADMIN || user.role === UserRoles.ADMIN;
-        const welcomeMessage = `<tg-emoji emoji-id="5767288471685171967">🤪</tg-emoji> 🦈 Добро пожаловать в Shark Market!`+
+        const welcomeMessage = `🦈 Добро пожаловать в Shark Market!`+
 `Здесь ты можешь купить гифты, которые уже сняты с продажи — редкие и недоступные в официальных источниках.\n`+
 `Выбирай, смотри ассортимент и забирай эксклюзив`
 
@@ -172,39 +172,32 @@ export class MainMenuUpdate {
             [{
                 text: "В магазин",
                 web_app: { url: "https://tem4ik.ru/" },
-                icon_custom_emoji_id: "5816683056605436129", 
+                // icon_custom_emoji_id: "5816683056605436129", 
                 style: 'success'
             } as any],
 
-            // [
-            //     {
-            //         text: "Новостной канал",
-            //         url: "https://t.me/news_pablo",
-            //         icon_custom_emoji_id: "5264896706733951437",
-            //         style: "danger" 
-            //     }
-            // ],
-            // [
-            //     {
-            //         text: "Поддержка",
-            //         url: "https://t.me/help_pablo",
-            //         icon_custom_emoji_id: "5267017905182097810",
-            //         style: "primary"
-            //     }
-            // ],
-
+        
             ...(hasUserRights ? [
                 [{ text: '📰 Менеджер новостей', callback_data: 'bot_news' }],
             ] : []),
         ]
 
 
-        await this.telegramService.sendOrEditMessage(
-            ctx,
-            welcomeMessage,
-            mainMenuKeyboard,
-            false
-        );
+        // await this.telegramService.sendOrEditMessage(
+        //     ctx,
+        //     welcomeMessage,
+        //     mainMenuKeyboard,
+        //     false
+        // );
+
+
+        ctx.reply(welcomeMessage, {
+            reply_markup:{
+                inline_keyboard: mainMenuKeyboard,
+                
+            },
+            parse_mode: "HTML"
+        })
     }
 
 
