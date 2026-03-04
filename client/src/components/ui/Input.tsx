@@ -35,10 +35,10 @@ export const Input = ({
   showTopPlaceholder = true
 }: Props) => {
   const getInputMode = () => {
-    if (type === 'number') {
-      // Для числовых полей всегда используем decimal, чтобы разрешить ввод десятичных чисел
-      return 'decimal';
-    }
+    // if (type === 'number') {
+    //   // Для числовых полей всегда используем decimal, чтобы разрешить ввод десятичных чисел
+    //   return 'decimal';
+    // }
     return 'text';
   };
 
@@ -54,7 +54,7 @@ export const Input = ({
     <div className="flex w-full h-min flex-col relative">
       <div className="relative group w-full font-bold">
         <input
-          inputMode={getInputMode()}
+          // inputMode={getInputMode()}
           step={getStep()}
           type={type}
           min={min}

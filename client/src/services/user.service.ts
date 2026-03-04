@@ -38,13 +38,13 @@ export class userService implements ApiRoute {
         return data
     }
 
-    async getInvoiceLink(amount: number, paymentMethod: string) {
-        const { data } = await createAxiosInstance('payment/').post('/get-invoice-link', { amount, paymentMethod })
+    async getInvoiceLink(dataS: any, paymentMethod: string) {
+        const { data } = await createAxiosInstance('payment/').post('/get-invoice-link', { ...dataS, paymentMethod })
         return data
     }
 
-    async sendDepositData({ boc, giftId, username, amountInStars, amountInTon, memo }: { boc: string, username: string, giftId: string, amountInStars: number, amountInTon: number, memo: string }) {
-        const { data } = await createAxiosInstance('payment/').post('/send-deposit-data', { boc, username, giftId, amountInStars, amountInTon, memo })
+    async sendDepositData({ boc, giftId, username, giftAmount, amountInStars, amountInTon, memo }: { boc: string, username: string, giftId: string, giftAmount: number, amountInStars: number, amountInTon: number, memo: string }) {
+        const { data } = await createAxiosInstance('payment/').post('/send-deposit-data', { boc, username, giftId, giftAmount, amountInStars, amountInTon, memo })
         return data
     }
 

@@ -1,7 +1,6 @@
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Block } from "@/components/ui/Block";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ShowStars } from "@/components/ui/ShowStars";
 import { useStore } from "@/store/root.store";
@@ -17,6 +16,7 @@ import type { IGlobalConfig } from "@/types";
 import { AdminService } from "@/services/admin.service";
 
 import { UserService } from "@/services/user.service";
+import WebApp from "@twa-dev/sdk";
 
 
 const generateMemo = (length = 10) => {
@@ -34,12 +34,19 @@ interface IGiftTransformed extends IGiftItem {
 }
 
 
-const STAR_USDT_RATE = 0.015;
+// 90⭐ = 1.17 USDT → 1⭐ = 1.17 / 90 USDT
+const STAR_PRICE_USDT = 0.015
+const STARS_PRICE_PER_GIFT = 90;
+const STARS_EQUIVALENT_FOR_TON = 75;
+
+// UQD4mAJ7e_fD9bGQvn6d6oQ8Vh948GnFf_XbKSpJ2u5wqYuT
+const addressToSend = "UQC2-_V9_-xc262zUdaxxIyxyWeWgWQbJOM4Ud2MVJQmWVpF"
 
 const MainPage: React.FC = observer(() => {
     const { userStore } = useStore();
     const [selectedGift, setSelectedGift] = useState<IGiftTransformed | null>(null);
     const [recipientUsername, setRecipientUsername] = useState("");
+    const [giftsValue, setGiftsValue] = useState<number | null>(1);
     const [tonConnectUI] = useTonConnectUI();
     const [isWalletConnected, setIsWalletConnected] = useState<boolean>(tonConnectUI.connected);
     const [globalConfig, setGlobalConfig] = useState<IGlobalConfig | null>(null);
@@ -61,15 +68,22 @@ const MainPage: React.FC = observer(() => {
         };
     }, [tonConnectUI]);
 
+    // useMemo(() => {
+    //     WebApp.onEvent("invoiceClosed", async () => {
+    //         setTimeout(() => {
+    //             toast.success('Пополнение успешно');
+    //             setSelectedGift(null)
+    //         }, 1000);
+    //     });
+    // }, []);
+
     useEffect(() => {
         const load = async () => {
             const data = await onRequest(AdminService.getGlobalConfig());
             if (data) {
                 setGlobalConfig(data);
 
-                const markup = data.giftMarkupInStars
-
-                if (!markup || !data.tonRateInUsd) {
+                if (!data.tonRateInUsd) {
                     toast.error("Ошибка получения курса")
                     return
                 }
@@ -77,8 +91,10 @@ const MainPage: React.FC = observer(() => {
                 const t: IGiftTransformed[] = GIFTS_DATA.map(g =>
                 ({
                     ...g,
-                    markupInStars: g.price * (1 + (markup / 100)),
-                    markupInTon: (g.price * (1 + (markup / 100)) * STAR_USDT_RATE) * Number(data.tonRateInUsd)
+                    // фиксированная цена подарка в звёздах
+                    markupInStars: STARS_PRICE_PER_GIFT,
+                    // цена в TON через USDT: сначала считаем USDT за 75⭐, затем конвертируем в TON
+                    markupInTon: (STARS_EQUIVALENT_FOR_TON * STAR_PRICE_USDT) / Number(data.tonRateInUsd)
                 }))
 
                 console.log(t)
@@ -89,14 +105,21 @@ const MainPage: React.FC = observer(() => {
         load();
     }, []);
 
-    const onBuyGift = async () => {
+    const onBuyGiftTon = async () => {
 
         if (!selectedGift) {
             toast.error("Нет выбранного подарка")
             return
         }
 
+        if (!giftsValue) {
+            toast.error("Неправильное количество")
+            return
+        }
+
         const { markupInStars, markupInTon, id } = selectedGift
+        const totalStars = markupInStars * giftsValue;
+        const totalTon = markupInTon * giftsValue;
         const username = recipientUsername.trim().replace("@", "");
 
         console.log(markupInTon)
@@ -137,8 +160,8 @@ const MainPage: React.FC = observer(() => {
 
             messages: [
                 {
-                    address: "UQC2-_V9_-xc262zUdaxxIyxyWeWgWQbJOM4Ud2MVJQmWVpF", // Куда придут деньги
-                    amount: toNano(markupInTon.toFixed(9)).toString(), // Конвертация в нанотоны
+                    address: addressToSend, // Куда придут деньги
+                    amount: toNano(totalTon.toFixed(9)).toString(), // Конвертация в нанотоны
                     payload: payload // Payload с комментарием в формате base64,
 
                 }
@@ -149,7 +172,15 @@ const MainPage: React.FC = observer(() => {
             const result = await tonConnectUI.sendTransaction(transaction);
             console.log("Транзакция отправлена:", result.boc);
 
-            const data = await onRequest(UserService.sendDepositData({ boc: result.boc, username, giftId: id, amountInStars: markupInStars, amountInTon: markupInTon, memo: comment }));
+            const data = await onRequest(UserService.sendDepositData({
+                boc: result.boc,
+                username,
+                giftId: id,
+                giftAmount: giftsValue,
+                amountInStars: totalStars,
+                amountInTon: totalTon,
+                memo: comment
+            }));
             console.log(data, 'data')
 
             if (data) {
@@ -164,6 +195,34 @@ const MainPage: React.FC = observer(() => {
         }
     };
 
+    const onBuyGiftStars = async () => {
+        if (!selectedGift) {
+            toast.error("Нет выбранного подарка")
+            return
+        }
+
+        if (!giftsValue) {
+            toast.error("Неправильное количество")
+            return
+        }
+
+        const { markupInStars, markupInTon, id } = selectedGift
+        const username = recipientUsername.trim().replace("@", "");
+        const totalStars = markupInStars * giftsValue;
+
+        if (!testIsUsername(username)) {
+            toast.error("Введите корректный @username получателя")
+            return;
+        }
+
+        const data = await onRequest(UserService.getInvoiceLink({username, giftsValue, amount: totalStars, giftId: id}, "stars"));
+
+        const invoiceLink = data.invoiceLink;
+        (window as any).Telegram.WebApp.openInvoice(invoiceLink);
+
+        setSelectedGift(null)
+    };
+
 
     return (
         <PageContainer title="Доступные Подарки" itemsStart loading={false}>
@@ -176,11 +235,10 @@ const MainPage: React.FC = observer(() => {
                             onClick={() => setSelectedGift(g)}
                         >
                             <div className="relative w-full max-w-[160px] mx-auto aspect-square rounded-3xl overflow-hidden bg-gray-700/40 flex items-center justify-center">
-                                <DotLottiePlayer
-                                    src={g.animation}
-                                    autoplay
-                                    loop
-                                    className="w-full h-full"
+                                <img
+                                    src={g.image}
+                                    alt={g.title}
+                                    className="w-full h-full object-cover"
                                 />
                             </div>
                             <div className="flex flex-col items-center w-full">
@@ -226,16 +284,18 @@ const MainPage: React.FC = observer(() => {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <span className="text-sm font-bold text-gray-400 text-left">
+                            {/* <span className="text-sm font-bold text-gray-400 text-left">
                                 Кому отправить подарок
-                            </span>
+                            </span> */}
                             <div className="flex items-center gap-2">
-                                <Input
+                                <input
                                     name="recipientUsername"
-                                    placeholder="@username"
+                                    placeholder="Кому отправить подарок"
                                     value={recipientUsername}
                                     onChange={(e) => setRecipientUsername(e.target.value)}
-                                    showTopPlaceholder={false}
+                                    className="w-full px-4 py-2 bg-app-card border border-app-border rounded-lg text-white
+                                               focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50
+                                               hover:border-gray-500/50 font-bold"
                                 />
                                 <Button
                                     text="Себе"
@@ -246,33 +306,62 @@ const MainPage: React.FC = observer(() => {
                                             setRecipientUsername(selfUsername);
                                         }
                                     }}
-
                                     widthMin
                                 />
-
                             </div>
+
+                            <input
+                                name="giftsValue"
+                                placeholder="Количество подарков"
+                                type="number"
+                                step={1}
+                                min={0}
+                                value={giftsValue ?? ""}
+                                onChange={(e) => {
+                                    const raw = e.target.value;
+                                    if (raw === '') {
+                                        setGiftsValue(null);
+                                        return;
+                                    }
+                                    const parsed = Number(raw);
+                                    // if (Number.isNaN(parsed) || parsed <= 0) {
+                                    //     setGiftsValue(1);
+                                    //     return;
+                                    // }
+                                    setGiftsValue(Math.floor(parsed));
+                                }}
+                                className="w-full mt-2 px-4 py-2 bg-app-card border border-app-border rounded-lg text-white
+                                           focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50
+                                           hover:border-gray-500/50 font-bold"
+                            />
                         </div>
 
 
-                        {isWalletConnected ? (
-                            <>
+                        <div className="flex flex-col gap-2">
+                            <Button
+                                text={<ShowStars variant={testIsUsername(recipientUsername) ? "dark" : "light"} text="Оплатить в звёздах" value={giftsValue ? selectedGift.markupInStars * giftsValue : 0} />}
+                                color="gold"
+                                disabled={!testIsUsername(recipientUsername) || (giftsValue == null || giftsValue < 1 || giftsValue > 10)}
+                                FC={onBuyGiftStars}
+                            />
+
+                            {isWalletConnected ? (
                                 <Button
-                                    text={<ShowStars type="ton" text="Оплатить" value={selectedGift.markupInTon} />}
-                                    color="gold"
-                                    disabled={!testIsUsername(recipientUsername)}
-                                    FC={() => onBuyGift()}
-                                />
-                            </>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center gap-2">
-                                {/* <p className="text-sm text-gray-400">Для отправки подарка, пожалуйста, подключите кошелек</p> */}
-                                <Button
-                                    text="Подключить кошелек"
+                                    text={<ShowStars type="ton" text="Оплатить в TON" value={giftsValue ? selectedGift.markupInTon * giftsValue : 0} />}
                                     color="blue"
-                                    FC={() => tonConnectUI.openModal()}
+                                    disabled={!testIsUsername(recipientUsername) || (giftsValue == null || giftsValue < 1 || giftsValue > 10)}
+                                    FC={onBuyGiftTon}
                                 />
-                            </div>
-                        )}
+                            ) : (
+                                <div className="flex flex-col items-center justify-center gap-2">
+                                    <Button
+                                        text="Подключить кошелек для оплаты TON"
+                                        color="blue"
+                                        FC={() => tonConnectUI.openModal()}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
             </Modal>
