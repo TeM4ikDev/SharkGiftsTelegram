@@ -28,21 +28,21 @@ export interface ITelegramClientDataConnect {
 // };
 
 
-const clientConfig = {
-  apiId: 26108203,
-  apiHash: "d7832411037cf958b18e09a9403ef04c",
-  phone: "+48572741800",
-  password: "",
-  session: "1BAAOMTQ5LjE1NC4xNjcuOTEAUAap81F71tGSAZaqcWoAl25iMl8S/fgUHVVxYsnCM1zLvuDJAJCyM9wbD55tA7CIA1z93vBrckyZgrcGWHrFRkh7wocuqvKGBEwzYkmFojqjsKdi8W9cs4Nc+cOwc50trphf4Sngnzks+BYWPfCjr35DC6zGUSQ+c7I5pueRsqNBcHOSAI89MN10b5o2vLHqP9GQsHQHvNYITRBi8t1dGY/zOK72XAnpPqeukMra4f9BTayFwVJXP37MFOrblnaxlZ6bKwAxbTc5QwdsYkBOEvZ/AuX8qR/s1MThLtifBjW0IkPXzsw1gygjWYN1h8zb6+Baxfaw59SkLQvVxlKhmMI=",
-}
-
 // const clientConfig = {
-//   apiId: 32001938,
-//   apiHash: "2b1640223ec7b83a090bebf824c52981",
-//   phone: "+34616751592",
+//   apiId: 26108203,
+//   apiHash: "d7832411037cf958b18e09a9403ef04c",
+//   phone: "+48572741800",
 //   password: "",
-//   session: null,
+//   session: "1BAAOMTQ5LjE1NC4xNjcuOTEAUAap81F71tGSAZaqcWoAl25iMl8S/fgUHVVxYsnCM1zLvuDJAJCyM9wbD55tA7CIA1z93vBrckyZgrcGWHrFRkh7wocuqvKGBEwzYkmFojqjsKdi8W9cs4Nc+cOwc50trphf4Sngnzks+BYWPfCjr35DC6zGUSQ+c7I5pueRsqNBcHOSAI89MN10b5o2vLHqP9GQsHQHvNYITRBi8t1dGY/zOK72XAnpPqeukMra4f9BTayFwVJXP37MFOrblnaxlZ6bKwAxbTc5QwdsYkBOEvZ/AuX8qR/s1MThLtifBjW0IkPXzsw1gygjWYN1h8zb6+Baxfaw59SkLQvVxlKhmMI=",
 // }
+
+const clientConfig = {
+  apiId: 32001938,
+  apiHash: "2b1640223ec7b83a090bebf824c52981",
+  phone: "+34616751592",
+  password: "",
+  session: "",
+}
 
 
 @Injectable()
