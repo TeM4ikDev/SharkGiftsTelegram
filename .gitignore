@@ -3,4 +3,4 @@
 # Переменные окружения (не коммитить секреты)
 # g
 
-/backend/prisma/
+/backend/prisma/dev.db

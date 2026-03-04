@@ -163,12 +163,9 @@ export class MainMenuUpdate {
             }
         }
         const hasUserRights = user.role === UserRoles.SUPER_ADMIN || user.role === UserRoles.ADMIN;
-        const welcomeMessage = `<tg-emoji emoji-id="5767288471685171967">🤪</tg-emoji> <b>Магазин по покупке удаленных подарков</b>\n`+
-            `               <tg-emoji emoji-id="5226661632259691727">🤪</tg-emoji>\n`+
-            `               <tg-emoji emoji-id="5224628072619216265">🤪</tg-emoji>\n`+
-            `               <tg-emoji emoji-id="5379850840691476775">🤪</tg-emoji>\n`+
-            `               <tg-emoji emoji-id="5345935030143196497">🤪</tg-emoji>\n`
-
+        const welcomeMessage = `<tg-emoji emoji-id="5767288471685171967">🤪</tg-emoji> 🦈 Добро пожаловать в Shark Market!`+
+`Здесь ты можешь купить гифты, которые уже сняты с продажи — редкие и недоступные в официальных источниках.\n`+
+`Выбирай, смотри ассортимент и забирай эксклюзив`
 
 
         const mainMenuKeyboard: InlineKeyboardButtonWithIcon[][] = [

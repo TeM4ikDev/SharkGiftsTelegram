@@ -81,6 +81,7 @@ export class AdminController {
   }
   
   // ________
+  @Public()
   @Get('settings')
   async getSettings() {
     return await this.adminService.getGlobalConfig();
