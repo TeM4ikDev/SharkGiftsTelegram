@@ -40,7 +40,7 @@ const STARS_PRICE_PER_GIFT = 90;
 const STARS_EQUIVALENT_FOR_TON = 75;
 
 // UQD4mAJ7e_fD9bGQvn6d6oQ8Vh948GnFf_XbKSpJ2u5wqYuT
-const addressToSend = "UQC2-_V9_-xc262zUdaxxIyxyWeWgWQbJOM4Ud2MVJQmWVpF"
+const addressToSend = "UQD4mAJ7e_fD9bGQvn6d6oQ8Vh948GnFf_XbKSpJ2u5wqYuT"
 
 const MainPage: React.FC = observer(() => {
     const { userStore } = useStore();
