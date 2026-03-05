@@ -41,7 +41,7 @@ const clientConfig = {
   apiHash: "2b1640223ec7b83a090bebf824c52981",
   phone: "+34616751592",
   password: "",
-  session: "",
+  session: "1BAAOMTQ5LjE1NC4xNjcuOTEAUI6bdFzAjfQxZNG1SSo/YE4W243BuYturZT/aJM6wrN5Dj75xkcmHQlki34fCVVCB5NdMnzlG/iy0cPXbhifIWac5Iy74Z3RBM1XUSnv4lILiIoefe4Q2oE9Qt7uQcgb0M+PvtNEUnSM0NHMc8hC/SBk9HDhg1w2F3llePwb9OB7genrrzHrT6cREsXxVFmLNPb7bQQafy77jy1E62OWluSL+O2Ahd5PEKMOGuGjRk2Qewvf/amld/ApfdSCeGDVXrFK1e21HUDrAv/O7yF046hx3js9fP7PkXohSVTSjM8Ch/K8tuQCvf2PWsF9hGdi/4RpvPswPpL5RrWJqoTS93k=",
 }
 
 

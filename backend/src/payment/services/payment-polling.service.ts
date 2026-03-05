@@ -227,13 +227,12 @@ export class PaymentPollingService {
       if (deposit.status === 'PENDING') {
         await this.paymentService.confirmDepositTon(deposit, foundTx.in_msg.message.source);
 
-        const { recipientUsername, giftId, giftAmount } = deposit.ton
+        const { recipientUsername, giftId, giftAmount, message } = deposit.ton
 
         console.log(deposit.ton)
 
-        // return
         for (let i = 0; i < (giftAmount || 1); i++) {
-          await this.telegramClient.sendGiftToTelegramUser(recipientUsername, giftId)
+          await this.telegramClient.sendGiftToTelegramUser(recipientUsername, giftId, message || '')
         }
       }
 

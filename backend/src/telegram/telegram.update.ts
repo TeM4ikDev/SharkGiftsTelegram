@@ -58,10 +58,10 @@ export class TelegramUpdate {
       return;
     }
 
-    const { recipientUsername, giftId, giftAmount } = deposit.stars;
+    const { recipientUsername, giftId, giftAmount, message } = deposit.stars;
 
     for (let i = 0; i < (giftAmount || 1); i++) {
-      await this.telegramClient.sendGiftToTelegramUser(recipientUsername, giftId);
+      await this.telegramClient.sendGiftToTelegramUser(recipientUsername, giftId, message || '');
     }
 
     await this.paymentService.markDepositCompleted(deposit.id);

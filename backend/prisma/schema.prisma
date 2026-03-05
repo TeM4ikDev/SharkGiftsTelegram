@@ -150,6 +150,8 @@ model DepositTelegramStars {
   giftId            String
   giftAmount Int @default(1)
 
+  message String?
+
   depositId String  @unique
   deposit   Deposit @relation(fields: [depositId], references: [id], onDelete: Cascade)
 }
@@ -164,8 +166,9 @@ model DepositTon {
 
   recipientUsername String
   giftId            String
-
   giftAmount Int @default(1)
+
+  message String?
 
   memo String
 

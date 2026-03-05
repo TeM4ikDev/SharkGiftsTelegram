@@ -34,7 +34,7 @@ export class PaymentController {
   @Post("get-invoice-link")
   async getInvoiceLink(
     @UserId() userId: string,
-    @Body() body: { username: string; giftsValue: number; amount: number; giftId: string; paymentMethod: "stars" | "cryptobot" },
+    @Body() body: { username: string; giftsValue: number; amount: number; giftId: string; message?: string; paymentMethod: "stars" | "cryptobot" },
   ) {
     let invoiceLink;
     const globalConfig = this.telegramService.getGlobalConfig()
@@ -48,6 +48,7 @@ export class PaymentController {
         body.username,
         body.giftId,
         body.giftsValue,
+        body.message,
       );
     } 
     // else if (body.paymentMethod === "cryptobot") {
@@ -71,6 +72,7 @@ export class PaymentController {
       giftAmount: number;
       amountInStars: number;
       amountInTon: number;
+      message?: string;
       memo: string;
     },
   ) {
@@ -84,6 +86,7 @@ export class PaymentController {
       body.giftAmount,
       new Decimal(body.amountInStars),
       new Decimal(body.amountInTon),
+      body.message,
       body.memo,
     );
   }

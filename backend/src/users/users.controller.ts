@@ -57,12 +57,14 @@ export class UsersController {
 
 
   @Post("getTgUser")
-  async getU(@Body() body){
+  async getU(@Body() body) {
     console.log(body)
-   return await this.telegramClient.getUserData(body.n)
+    const res = await this.telegramClient.getUserData(body.n)
+    console.log(res, 'res')
+    return res
 
-   
+
   }
 
-  
+
 }

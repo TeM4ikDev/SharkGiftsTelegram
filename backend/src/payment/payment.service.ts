@@ -120,7 +120,15 @@ export class PaymentService {
 
 
   // ______create deposits__________
-  async createDepositStars(userId: string, amountInStars: Decimal, recipientUsername: string, giftId: string, giftAmount: number, tx?: Prisma.TransactionClient) {
+  async createDepositStars(
+    userId: string,
+    amountInStars: Decimal,
+    recipientUsername: string,
+    giftId: string,
+    giftAmount: number,
+    message?: string,
+    tx?: Prisma.TransactionClient,
+  ) {
     const db = tx || this.database;
     return await db.deposit.create({
       data: {
@@ -132,8 +140,8 @@ export class PaymentService {
           create: {
             giftAmount,
             recipientUsername,
-            giftId
-
+            giftId,
+            message,
           }
         }
       }
@@ -162,6 +170,7 @@ export class PaymentService {
     giftAmount: number,
     amountInStars: Decimal,
     amountInTon: Decimal,
+    message: string | undefined,
     memo: string,
   ) {
 
@@ -180,7 +189,17 @@ export class PaymentService {
         userId,
         type: 'TON',
         amountInStars,
-        ton: { create: { amountInTon, giftId, giftAmount, recipientUsername: username, boc, memo } },
+        ton: {
+          create: {
+            amountInTon,
+            giftId,
+            giftAmount,
+            recipientUsername: username,
+            boc,
+            memo,
+            message,
+          }
+        },
       },
     });
 
@@ -280,6 +299,7 @@ export class PaymentService {
     recipientUsername: string,
     giftId: string,
     giftAmount: number,
+    message?: string,
   ) {
     const deposit = await this.createDepositStars(
       userId,
@@ -287,6 +307,7 @@ export class PaymentService {
       recipientUsername,
       giftId,
       giftAmount,
+      message,
     );
     const invoiceLink = await this.bot.telegram.createInvoiceLink({
       title: '⭐️ Подтверждение продажи',

@@ -47,6 +47,7 @@ const MainPage: React.FC = observer(() => {
     const [selectedGift, setSelectedGift] = useState<IGiftTransformed | null>(null);
     const [recipientUsername, setRecipientUsername] = useState("");
     const [giftsValue, setGiftsValue] = useState<number | null>(1);
+    const [giftMessage, setGiftMessage] = useState<string>("");
     const [tonConnectUI] = useTonConnectUI();
     const [isWalletConnected, setIsWalletConnected] = useState<boolean>(tonConnectUI.connected);
     const [globalConfig, setGlobalConfig] = useState<IGlobalConfig | null>(null);
@@ -142,6 +143,7 @@ const MainPage: React.FC = observer(() => {
 
         if (!data) {
             toast.error("Такого аккаунта нет. Возможно это канал или группа")
+            return;
         }
 
 
@@ -179,7 +181,8 @@ const MainPage: React.FC = observer(() => {
                 giftAmount: giftsValue,
                 amountInStars: totalStars,
                 amountInTon: totalTon,
-                memo: comment
+                memo: comment,
+                message: giftMessage || undefined,
             }));
             console.log(data, 'data')
 
@@ -215,7 +218,12 @@ const MainPage: React.FC = observer(() => {
             return;
         }
 
-        const data = await onRequest(UserService.getInvoiceLink({username, giftsValue, amount: totalStars, giftId: id}, "stars"));
+        const data = await onRequest(
+            UserService.getInvoiceLink(
+                { username, giftsValue, amount: totalStars, giftId: id, message: giftMessage || undefined },
+                "stars"
+            )
+        );
 
         const invoiceLink = data.invoiceLink;
         (window as any).Telegram.WebApp.openInvoice(invoiceLink);
@@ -283,7 +291,7 @@ const MainPage: React.FC = observer(() => {
                             />
                         </div>
 
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-3">
                             {/* <span className="text-sm font-bold text-gray-400 text-left">
                                 Кому отправить подарок
                             </span> */}
@@ -330,9 +338,20 @@ const MainPage: React.FC = observer(() => {
                                     // }
                                     setGiftsValue(Math.floor(parsed));
                                 }}
-                                className="w-full mt-2 px-4 py-2 bg-app-card border border-app-border rounded-lg text-white
-                                           focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50
-                                           hover:border-gray-500/50 font-bold"
+                                className="w-full px-4 py-2 bg-app-card border border-app-border rounded-lg text-white
+                                               focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50
+                                               hover:border-gray-500/50 font-bold"
+                            />
+
+                            <input
+                                name="giftMessage"
+                                placeholder="Комментарий к подарку (необязательно)"
+                                value={giftMessage}
+                                onChange={(e) => setGiftMessage(e.target.value)}
+                                maxLength={200}
+                                className="w-full px-4 py-2 bg-app-card border border-app-border rounded-lg text-white
+                                               focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50
+                                               hover:border-gray-500/50 font-bold"
                             />
                         </div>
 
