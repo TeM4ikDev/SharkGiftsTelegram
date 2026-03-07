@@ -270,7 +270,7 @@ export class TelegramClient {
 
 
     console.log(userId, giftId, message, isAnonymous)
-    return
+    // return
     try {
       const client = await this.getClientOrThrow();
       const peer = await client.getInputEntity(userId);
