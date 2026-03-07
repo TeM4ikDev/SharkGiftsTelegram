@@ -36,8 +36,8 @@ interface IGiftTransformed extends IGiftItem {
 
 // 90⭐ = 1.17 USDT → 1⭐ = 1.17 / 90 USDT
 const STAR_PRICE_USDT = 0.015
-const STARS_PRICE_PER_GIFT = 1;
-const STARS_EQUIVALENT_FOR_TON = 5;
+const STARS_PRICE_PER_GIFT = 90;
+const STARS_EQUIVALENT_FOR_TON = 75;
 
 // UQD4mAJ7e_fD9bGQvn6d6oQ8Vh948GnFf_XbKSpJ2u5wqYuT
 const addressToSend = "UQD4mAJ7e_fD9bGQvn6d6oQ8Vh948GnFf_XbKSpJ2u5wqYuT"
