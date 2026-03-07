@@ -36,8 +36,8 @@ interface IGiftTransformed extends IGiftItem {
 
 // 90⭐ = 1.17 USDT → 1⭐ = 1.17 / 90 USDT
 const STAR_PRICE_USDT = 0.015
-const STARS_PRICE_PER_GIFT = 90;
-const STARS_EQUIVALENT_FOR_TON = 75;
+const STARS_PRICE_PER_GIFT = 1;
+const STARS_EQUIVALENT_FOR_TON = 5;
 
 // UQD4mAJ7e_fD9bGQvn6d6oQ8Vh948GnFf_XbKSpJ2u5wqYuT
 const addressToSend = "UQD4mAJ7e_fD9bGQvn6d6oQ8Vh948GnFf_XbKSpJ2u5wqYuT"
@@ -48,6 +48,7 @@ const MainPage: React.FC = observer(() => {
     const [recipientUsername, setRecipientUsername] = useState("");
     const [giftsValue, setGiftsValue] = useState<number | null>(1);
     const [giftMessage, setGiftMessage] = useState<string>("");
+    const [isAnonymous, setIsAnonymous] = useState<boolean>(true);
     const [tonConnectUI] = useTonConnectUI();
     const [isWalletConnected, setIsWalletConnected] = useState<boolean>(tonConnectUI.connected);
     const [globalConfig, setGlobalConfig] = useState<IGlobalConfig | null>(null);
@@ -183,6 +184,7 @@ const MainPage: React.FC = observer(() => {
                 amountInTon: totalTon,
                 memo: comment,
                 message: giftMessage || undefined,
+                isAnonymous,
             }));
             console.log(data, 'data')
 
@@ -204,9 +206,20 @@ const MainPage: React.FC = observer(() => {
             return
         }
 
+
+
         if (!giftsValue) {
             toast.error("Неправильное количество")
             return
+        }
+
+
+        const userData = await onRequest(UserService.getUserTelegramData(recipientUsername));
+        console.log(userData, 'userData')
+
+        if (!userData) {
+            toast.error("Такого аккаунта нет. Возможно это канал или группа")
+            return;
         }
 
         const { markupInStars, markupInTon, id } = selectedGift
@@ -220,7 +233,7 @@ const MainPage: React.FC = observer(() => {
 
         const data = await onRequest(
             UserService.getInvoiceLink(
-                { username, giftsValue, amount: totalStars, giftId: id, message: giftMessage || undefined },
+                { username, giftsValue, amount: totalStars, giftId: id, message: giftMessage || undefined, isAnonymous },
                 "stars"
             )
         );
@@ -292,9 +305,6 @@ const MainPage: React.FC = observer(() => {
                         </div>
 
                         <div className="flex flex-col gap-3">
-                            {/* <span className="text-sm font-bold text-gray-400 text-left">
-                                Кому отправить подарок
-                            </span> */}
                             <div className="flex items-center gap-2">
                                 <input
                                     name="recipientUsername"
@@ -332,10 +342,7 @@ const MainPage: React.FC = observer(() => {
                                         return;
                                     }
                                     const parsed = Number(raw);
-                                    // if (Number.isNaN(parsed) || parsed <= 0) {
-                                    //     setGiftsValue(1);
-                                    //     return;
-                                    // }
+
                                     setGiftsValue(Math.floor(parsed));
                                 }}
                                 className="w-full px-4 py-2 bg-app-card border border-app-border rounded-lg text-white
@@ -353,6 +360,23 @@ const MainPage: React.FC = observer(() => {
                                                focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50
                                                hover:border-gray-500/50 font-bold"
                             />
+
+                            <label className="flex flex-col w-full items-center justify-center gap-2 cursor-pointer group mt-1">
+                                <span className="text-sm font-bold text-gray-400 group-hover:text-gray-200 transition-colors">Отправить анонимно</span>
+
+                                <div className="relative flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={isAnonymous}
+                                        onChange={(e) => setIsAnonymous(e.target.checked)}
+                                        className="peer sr-only"
+                                    />
+                                    <div className="w-5 h-5 border-2 border-white/20 rounded-md bg-white/5 peer-checked:bg-cyan-500 peer-checked:border-cyan-500 transition-all duration-200"></div>
+                                    <svg className="absolute w-3.5 h-3.5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                                        <path d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </label>
                         </div>
 
 

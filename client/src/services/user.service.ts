@@ -43,8 +43,8 @@ export class userService implements ApiRoute {
         return data
     }
 
-    async sendDepositData({ boc, giftId, username, giftAmount, amountInStars, amountInTon, memo, message }: { boc: string, username: string, giftId: string, giftAmount: number, amountInStars: number, amountInTon: number, memo: string, message?: string }) {
-        const { data } = await createAxiosInstance('payment/').post('/send-deposit-data', { boc, username, giftId, giftAmount, amountInStars, amountInTon, memo, message })
+    async sendDepositData({ boc, giftId, username, giftAmount, amountInStars, amountInTon, memo, message, isAnonymous }: { boc: string, username: string, giftId: string, giftAmount: number, amountInStars: number, amountInTon: number, memo: string, message?: string, isAnonymous?: boolean }) {
+        const { data } = await createAxiosInstance('payment/').post('/send-deposit-data', { boc, username, giftId, giftAmount, amountInStars, amountInTon, memo, message, isAnonymous })
         return data
     }
 

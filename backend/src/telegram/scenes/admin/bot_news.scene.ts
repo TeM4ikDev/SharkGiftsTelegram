@@ -384,15 +384,16 @@ export class BotNewsScene {
     }
 
     private async performSend(ctx: NewsSceneSession, newsData: INewsData) {
-        let users: any[] = [];
+        let users: { telegramId: string }[] = [];
         let sendModeText = '';
 
         try {
             if (newsData.sendMode === 'all') {
-                const { users: allUsers } = await this.usersService.findAllUsers();
+                const allUsers = await this.usersService.getAllUsers();
                 users = allUsers;
                 sendModeText = 'всем пользователям';
-            } else if (newsData.sendMode === 'selected' && newsData.selectedUsers) {
+            } 
+            else if (newsData.sendMode === 'selected' && newsData.selectedUsers) {
                 // Находим пользователей по username или telegramId
                 for (const userIdentifier of newsData.selectedUsers) {
                     let user = null;

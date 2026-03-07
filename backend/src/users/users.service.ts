@@ -19,6 +19,16 @@ export class UsersService {
     return await this.database.usersConfig.findMany()
   }
 
+
+  async getAllUsers(){
+    return await this.database.user.findMany({
+      select: {
+        telegramId: true,
+      }
+    })
+  }
+
+
   async findAllUsers(page: number = 1, limit: number = 10, search: string = '') {
     const skip = (page - 1) * limit;
     const where = search

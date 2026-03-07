@@ -127,6 +127,7 @@ export class PaymentService {
     giftId: string,
     giftAmount: number,
     message?: string,
+    isAnonymous: boolean = true,
     tx?: Prisma.TransactionClient,
   ) {
     const db = tx || this.database;
@@ -142,6 +143,7 @@ export class PaymentService {
             recipientUsername,
             giftId,
             message,
+            isAnonymous,
           }
         }
       }
@@ -171,6 +173,7 @@ export class PaymentService {
     amountInStars: Decimal,
     amountInTon: Decimal,
     message: string | undefined,
+    isAnonymous: boolean = true,
     memo: string,
   ) {
 
@@ -198,6 +201,7 @@ export class PaymentService {
             boc,
             memo,
             message,
+            isAnonymous,
           }
         },
       },
@@ -300,6 +304,7 @@ export class PaymentService {
     giftId: string,
     giftAmount: number,
     message?: string,
+    isAnonymous: boolean = true,
   ) {
     const deposit = await this.createDepositStars(
       userId,
@@ -308,6 +313,7 @@ export class PaymentService {
       giftId,
       giftAmount,
       message,
+      isAnonymous,
     );
     const invoiceLink = await this.bot.telegram.createInvoiceLink({
       title: '⭐️ Подтверждение продажи',

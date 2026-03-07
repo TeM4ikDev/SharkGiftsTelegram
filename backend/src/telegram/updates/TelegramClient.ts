@@ -71,7 +71,7 @@ export class TelegramClient {
     this.clientAccountData = await this.getAboutMe()
     console.log(this.clientAccountData)
 
-     //5956217000635139069
+    //5956217000635139069
     // 5922558454332916696
     // 5800655655995968830
     // 5801108895304779062
@@ -181,7 +181,7 @@ export class TelegramClient {
     return result;
   }
 
- 
+
   private static readonly FEATURED_GIFT_IDS = new Set([
     "5956217000635139069",
     "5922558454332916696",
@@ -189,7 +189,7 @@ export class TelegramClient {
     "5801108895304779062",
   ]);
 
-  
+
   async getFeaturedGiftsInfo(): Promise<
     Array<{
       giftId: string;
@@ -266,7 +266,11 @@ export class TelegramClient {
    * @param {string|BigInt} giftId - ID подарка (например, 5956217000635139069)
    * @param {string} message - Сообщение к подарку (необязательно)
    */
-  async sendGiftToTelegramUser(userId: string, giftId: string, message = "") {
+  async sendGiftToTelegramUser(userId: string, giftId: string, message = "", isAnonymous: boolean = true) {
+
+
+    console.log(userId, giftId, message, isAnonymous)
+    return
     try {
       const client = await this.getClientOrThrow();
       const peer = await client.getInputEntity(userId);
@@ -274,15 +278,15 @@ export class TelegramClient {
       const invoice = new Api.InputInvoiceStarGift({
         peer,
         giftId: BigInt(giftId),
-        hideName: true,
+        hideName: isAnonymous,
         // includeUpgrade: true,
         ...(message
           ? {
-              message: new Api.TextWithEntities({
-                text: message,
-                entities: [],
-              }),
-            }
+            message: new Api.TextWithEntities({
+              text: message,
+              entities: [],
+            }),
+          }
           : {}),
       } as any);
 

@@ -152,6 +152,8 @@ model DepositTelegramStars {
 
   message String?
 
+  isAnonymous Boolean @default(true)
+
   depositId String  @unique
   deposit   Deposit @relation(fields: [depositId], references: [id], onDelete: Cascade)
 }
@@ -169,6 +171,7 @@ model DepositTon {
   giftAmount Int @default(1)
 
   message String?
+  isAnonymous Boolean @default(true)
 
   memo String
 
